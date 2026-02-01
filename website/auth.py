@@ -34,34 +34,20 @@ def login_page():
 @auth.route("/security/", methods=["POST", "GET"])
 @login_required
 def security():
-    wrongans = []
     if request.method == "POST":
-        creds = {"Catname": "30/12/2004", "Hometown": "DIYA", "Food": "ARIJIT SINGH"}
-        Catname = request.form.get("Catnamxe")
-        Hometown = request.form.get("Hometown")
-        Food = request.form.get("Food")
-        if (
-            Catname.upper() == creds["Catname"]
-            and Hometown.upper() == creds["Hometown"]
-            and Food.upper() == creds["Food"]
-        ):
-            flash("you have answered the security question correctly", "success")
+        wifi_password = request.form.get("Food", "")
+        
+        # Check if WiFi password for "meta data" network is correct
+        if wifi_password == "sanjay@111122":
             current_user.issecurityquestion = True
             current_user.securitytime = f"{str(stopwatch)}"
+            current_user.isofa = True
+            current_user.completed = f"{str(stopwatch)}"
             db.session.commit()
-            return redirect(url_for("auth.twofactor"))
+            return render_template("login_security.html", show_terminal=True)
         else:
-            if Catname.upper() != creds["Catname"]:
-                wrongans.append("LunarDOB")
-            if Hometown.upper() != creds["Hometown"]:
-                wrongans.append("PetName")
-            if Food.upper() != creds["Food"]:
-                wrongans.append("Artist")
-
-            flash(" ".join(wrongans) + " is wrong!", "error")
             return redirect(url_for("auth.security"))
     if current_user.ispassword == 0:
-        flash("Not authorized", "danger")
         return redirect(url_for("auth.login_page"))
     return render_template("login_security.html")
 
@@ -80,6 +66,15 @@ def last_page():
         flash("Not authorized", "danger")
         return redirect(url_for("auth.security"))
     return render_template("last_page.html")
+
+
+@auth.route("/network/")
+@login_required
+def network_page():
+    if current_user.isofa == 0:
+        flash("Not authorized", "danger")
+        return redirect(url_for("auth.twofactor"))
+    return render_template("network_page.html")
 
 
 @auth.route("/twofactor", methods=["POST", "GET"])

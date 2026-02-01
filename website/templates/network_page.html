@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network & Internet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            pointer-events: none;
+        }
+        .network-container {
+            background: #2d2d2d;
+            border-radius: 12px;
+            width: 700px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+        .window-header {
+            background: #3a3a3a;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .window-controls {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-circle {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .btn-red { background: #ff5f57; }
+        .btn-yellow { background: #ffbd2e; }
+        .btn-green { background: #28ca41; }
+        .window-title {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 400;
+        }
+        .alert-box {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+            padding: 15px 20px;
+            margin: 20px;
+            color: #4caf50;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        .wifi-section {
+            padding: 20px;
+        }
+        .wifi-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .wifi-icon {
+            color: #2196F3;
+            font-size: 28px;
+        }
+        .wifi-title {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 500;
+        }
+        .wifi-subtitle {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .network-list {
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .network-item {
+            padding: 18px 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .network-item:hover {
+            background: #252525;
+        }
+        .network-item.selected {
+            background: #2196F3;
+        }
+        .network-item:last-child {
+            border-bottom: none;
+        }
+        .network-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .signal-icon {
+            color: #2196F3;
+            font-size: 20px;
+        }
+        .network-item.selected .signal-icon,
+        .network-item.selected .network-name,
+        .network-item.selected .network-status {
+            color: #fff;
+        }
+        .network-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .network-name {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .network-status {
+            color: #888;
+            font-size: 12px;
+        }
+        .network-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .signal-strength {
+            color: #888;
+            font-size: 18px;
+        }
+        .lock-icon {
+            color: #ffa726;
+            font-size: 18px;
+        }
+        .password-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 8px;
+        }
+        .input-label {
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .password-input {
+            width: 100%;
+            padding: 14px;
+            background: #2d2d2d;
+            border: 2px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .password-input:focus {
+            border-color: #2196F3;
+        }
+        .connect-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            background: #2196F3;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .connect-btn:hover {
+            background: #1976D2;
+        }
+        .connect-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Glitch Effect */
+        .glitch-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: none;
+            animation: glitchFlash 0.1s infinite;
+        }
+        .glitch-overlay.active {
+            display: block;
+        }
+        @keyframes glitchFlash {
+            0%, 100% { opacity: 1; background: #000; }
+            10% { opacity: 0.8; background: #f00; }
+            20% { opacity: 0.9; background: #0f0; }
+            30% { opacity: 0.7; background: #00f; }
+            40% { opacity: 1; background: #fff; }
+            50% { opacity: 0.6; background: #000; }
+            60% { opacity: 0.9; background: #ff0; }
+            70% { opacity: 0.8; background: #0ff; }
+            80% { opacity: 0.7; background: #f0f; }
+            90% { opacity: 1; background: #000; }
+        }
+
+        /* Terminal Screen */
+        .terminal-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            z-index: 10000;
+            display: none;
+            padding: 40px;
+            overflow: auto;
+        }
+        .terminal-screen.active {
+            display: block;
+        }
+        .terminal-header {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        .terminal-line {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 8px 0;
+            opacity: 0;
+            animation: typeLine 0.5s forwards;
+        }
+        @keyframes typeLine {
+            to { opacity: 1; }
+        }
+        .terminal-line.error {
+            color: #ff0000;
+        }
+        .terminal-line.warning {
+            color: #ffaa00;
+        }
+        .terminal-line.success {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .terminal-line.highlight {
+            color: #00ffff;
+            font-weight: bold;
+            font-size: 16px;
+            text-shadow: 0 0 15px #00ffff;
+        }
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: #00ff00;
+            animation: blink 1s infinite;
+            margin-left: 5px;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="network-container">
+        <div class="window-header">
+            <div class="window-controls">
+                <div class="btn-circle btn-red"></div>
+                <div class="btn-circle btn-yellow"></div>
+                <div class="btn-circle btn-green"></div>
+            </div>
+            <div class="window-title">Network & Internet</div>
+        </div>
+
+        <div class="alert-box">
+            Suspicious activity! please answer security questions to continue
+        </div>
+
+        <div class="wifi-section">
+            <div class="wifi-header">
+                <div class="wifi-icon">📶</div>
+                <div class="wifi-title">Wi-Fi</div>
+            </div>
+            <div class="wifi-subtitle">Select a network to connect</div>
+
+            <div class="network-list">
+                <div class="network-item" onclick="selectNetwork(this, 'Neighbor_WiFi_5G')">
+                    <div class="network-left">
+                        <div class="signal-icon">📶</div>
+                        <div class="network-info">
+                            <div class="network-name">Neighbor_WiFi_5G</div>
+                            <div class="network-status">Secured</div>
+                        </div>
+                    </div>
+                    <div class="network-right">
+                        <div class="signal-strength">▂▄▆</div>
+                        <div class="lock-icon">🔒</div>
+                    </div>
+                </div>
+
+                <div class="network-item selected" onclick="selectNetwork(this, 'meta data')">
+                    <div class="network-left">
+                        <div class="signal-icon">📶</div>
+                        <div class="network-info">
+                            <div class="network-name">meta data</div>
+                            <div class="network-status">Secured</div>
+                        </div>
+                    </div>
+                    <div class="network-right">
+                        <div class="signal-strength">▂▄▆█</div>
+                        <div class="lock-icon">🔒</div>
+                    </div>
+                </div>
+
+                <div class="network-item" onclick="selectNetwork(this, 'GUEST_NETWORK')">
+                    <div class="network-left">
+                        <div class="signal-icon">📶</div>
+                        <div class="network-info">
+                            <div class="network-name">GUEST_NETWORK</div>
+                            <div class="network-status">Secured</div>
+                        </div>
+                    </div>
+                    <div class="network-right">
+                        <div class="signal-strength">▂▄</div>
+                        <div class="lock-icon">🔒</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="password-section">
+                <label class="input-label">Enter the network security key</label>
+                <input type="password" class="password-input" id="networkPassword" placeholder="Network security key">
+                <button class="connect-btn" onclick="connectToNetwork()">Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Glitch Overlay -->
+    <div class="glitch-overlay" id="glitchOverlay"></div>
+
+    <!-- Terminal Screen -->
+    <div class="terminal-screen" id="terminalScreen">
+        <div class="terminal-header">
+            ╔═══════════════════════════════════════════════════════════════╗<br>
+            ║  SYSTEM ACCESS GRANTED - BENEATH THE MASK v2.1              ║<br>
+            ╚═══════════════════════════════════════════════════════════════╝
+        </div>
+        <div id="terminalContent"></div>
+    </div>
+
+    <script>
+        let selectedNetwork = 'meta data';
+
+        function selectNetwork(element, networkName) {
+            document.querySelectorAll('.network-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedNetwork = networkName;
+        }
+
+        function connectToNetwork() {
+            const password = document.getElementById('networkPassword').value;
+            
+            if (selectedNetwork !== 'meta data') {
+                alert('Please select "meta data" network');
+                return;
+            }
+
+            if (password === 'sanjay@111122') {
+                // Start glitch effect
+                const glitchOverlay = document.getElementById('glitchOverlay');
+                glitchOverlay.classList.add('active');
+
+                // After 2.5 seconds, show terminal
+                setTimeout(() => {
+                    glitchOverlay.classList.remove('active');
+                    showTerminal();
+                }, 2500);
+            } else {
+                alert('Incorrect password. Try again.');
+            }
+        }
+
+        function showTerminal() {
+            const terminalScreen = document.getElementById('terminalScreen');
+            const terminalContent = document.getElementById('terminalContent');
+            terminalScreen.classList.add('active');
+
+            const commands = [
+                { text: '> Initializing connection...', delay: 0, class: '' },
+                { text: '> Connecting to meta data network...', delay: 800, class: '' },
+                { text: '> Establishing secure channel...', delay: 1600, class: '' },
+                { text: '> Authenticating credentials...', delay: 2400, class: 'success' },
+                { text: '> ACCESS GRANTED', delay: 3200, class: 'success' },
+                { text: '', delay: 4000, class: '' },
+                { text: '> Scanning network for encrypted files...', delay: 4800, class: '' },
+                { text: '> Found 1 encrypted payload...', delay: 5600, class: 'warning' },
+                { text: '> Decrypting payload...', delay: 6400, class: '' },
+                { text: '> [████████████████████] 100%', delay: 7200, class: 'success' },
+                { text: '', delay: 8000, class: '' },
+                { text: '> File location retrieved:', delay: 8800, class: 'success' },
+                { text: '/download/filesname/revil/encodetext.b64', delay: 9600, class: 'highlight' },
+                { text: '', delay: 10400, class: '' },
+                { text: '> Operation completed successfully.', delay: 11200, class: 'success' }
+            ];
+
+            commands.forEach((cmd, index) => {
+                setTimeout(() => {
+                    const line = document.createElement('div');
+                    line.className = `terminal-line ${cmd.class}`;
+                    line.style.animationDelay = '0s';
+                    line.textContent = cmd.text;
+                    terminalContent.appendChild(line);
+
+                    // Add cursor at the end
+                    if (index === commands.length - 1) {
+                        setTimeout(() => {
+                            const cursor = document.createElement('span');
+                            cursor.className = 'cursor';
+                            terminalContent.appendChild(cursor);
+                        }, 500);
+                    }
+                }, cmd.delay);
+            });
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('networkPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                connectToNetwork();
+            }
+        });
+    </script>
+</body>
+</html>

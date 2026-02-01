@@ -31,3 +31,4 @@ pytest_cache/
 
 website/__pycache__
 website/*.pyc   
+instance/

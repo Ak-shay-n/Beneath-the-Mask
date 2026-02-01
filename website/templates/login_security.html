@@ -379,13 +379,217 @@
 
         // Auto-open WiFi window on page load
         window.addEventListener('load', function() {
-            setTimeout(() => {
-                openWindow('wifi-window');
-                // Auto-select the target network
-                const targetNetwork = document.getElementById('target-network');
-                selectNetwork(targetNetwork, 'meta_data');
-            }, 800);
+            {% if show_terminal %}
+                // Trigger glitch and terminal on successful login
+                triggerGlitchAndTerminal();
+            {% else %}
+                setTimeout(() => {
+                    openWindow('wifi-window');
+                    // Auto-select the target network
+                    const targetNetwork = document.getElementById('target-network');
+                    selectNetwork(targetNetwork, 'meta_data');
+                }, 800);
+            {% endif %}
         });
+
+        function triggerGlitchAndTerminal() {
+            // Show glitch effect
+            const glitchDiv = document.createElement('div');
+            glitchDiv.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 99999;
+                animation: glitchEffect 0.1s infinite;
+                pointer-events: none;
+            `;
+            document.body.appendChild(glitchDiv);
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes glitchEffect {
+                    0%, 100% { background: #000; opacity: 1; }
+                    10% { background: #f00; opacity: 0.8; }
+                    20% { background: #0f0; opacity: 0.9; }
+                    30% { background: #00f; opacity: 0.7; }
+                    40% { background: #fff; opacity: 1; }
+                    50% { background: #000; opacity: 0.6; }
+                    60% { background: #ff0; opacity: 0.9; }
+                    70% { background: #0ff; opacity: 0.8; }
+                    80% { background: #f0f; opacity: 0.7; }
+                    90% { background: #000; opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // After 1 second, remove glitch and show terminal
+            setTimeout(() => {
+                glitchDiv.remove();
+                showTerminalScreen();
+            }, 1000);
+        }
+
+        function showTerminalScreen() {
+            // Don't hide desktop, show terminal as a window
+            // Close WiFi window first
+            closeWindow('wifi-window');
+
+            // Create terminal window (CMD style) - smaller window on desktop
+            const terminal = document.createElement('div');
+            terminal.id = 'terminal-window';
+            terminal.className = 'window';
+            terminal.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 750px;
+                height: 500px;
+                background: #0c0c0c;
+                border: 1px solid #00ff00;
+                box-shadow: 0 20px 60px rgba(0,255,65,0.3);
+                z-index: 100;
+                display: flex;
+                flex-direction: column;
+                font-family: 'Consolas', 'Courier New', monospace;
+            `;
+
+            // Terminal title bar
+            const titleBar = document.createElement('div');
+            titleBar.className = 'title-bar';
+            titleBar.onmousedown = (e) => startDrag(e, 'terminal-window');
+            titleBar.style.cssText = `
+                background: #1e1e1e;
+                padding: 10px 15px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px solid #00ff00;
+                cursor: move;
+            `;
+            titleBar.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; gap: 6px;">
+                        <div style="width: 12px; height: 12px; background: #ff5f57; border-radius: 50%; cursor: pointer;" onclick="closeWindow('terminal-window')"></div>
+                        <div style="width: 12px; height: 12px; background: #ffbd2e; border-radius: 50%;"></div>
+                        <div style="width: 12px; height: 12px; background: #28ca41; border-radius: 50%;"></div>
+                    </div>
+                    <span style="color: #00ff00; font-size: 13px; text-shadow: 0 0 10px rgba(0,255,65,0.5);">⚡ Terminal - System Access</span>
+                </div>
+            `;
+            terminal.appendChild(titleBar);
+
+            // System tray info bar
+            const infoBar = document.createElement('div');
+            infoBar.style.cssText = `
+                background: #0c0c0c;
+                padding: 6px 15px;
+                color: #00ff00;
+                font-size: 10px;
+                border-bottom: 1px solid #1a1a1a;
+                display: flex;
+                justify-content: space-between;
+                font-weight: 500;
+            `;
+            infoBar.innerHTML = `
+                <span>System: Windows 10 | Network: meta_data | Status: <span style="color: #00ff00;">●</span> CONNECTED</span>
+                <span id="terminal-time">${new Date().toLocaleTimeString()}</span>
+            `;
+            terminal.appendChild(infoBar);
+
+            // Terminal content area
+            const content = document.createElement('div');
+            content.style.cssText = `
+                flex: 1;
+                padding: 15px;
+                overflow-y: auto;
+                background: #0c0c0c;
+                color: #00ff00;
+                font-size: 13px;
+                line-height: 1.5;
+            `;
+            content.id = 'terminal-content';
+            terminal.appendChild(content);
+
+            document.getElementById('desktop-screen').appendChild(terminal);
+
+            // Update time every second
+            setInterval(() => {
+                const timeEl = document.getElementById('terminal-time');
+                if (timeEl) timeEl.textContent = new Date().toLocaleTimeString();
+            }, 1000);
+
+            // Initial prompt
+            const initialLine = document.createElement('div');
+            initialLine.innerHTML = `<span style="color: #0f0;">Microsoft Windows [Version 10.0.19044.1234]</span><br><span style="color: #0a0;">(c) Microsoft Corporation. All rights reserved.</span><br><br>`;
+            content.appendChild(initialLine);
+
+            // Commands to execute
+            const commands = [
+                { cmd: 'C:\\Users\\Agent> netsh wlan show interfaces', delay: 0 },
+                { output: 'Name                   : Wi-Fi\nDescription            : Intel(R) Wireless Adapter\nState                  : connected\nSSID                   : meta_data\nSignal                 : 100%', delay: 800, color: '#0a0' },
+                { cmd: '', delay: 1600 },
+                { cmd: 'C:\\Users\\Agent> ipconfig /all', delay: 2400 },
+                { output: 'Connection-specific DNS Suffix  : meta_data.local\nIPv4 Address                     : 192.168.1.157\nSubnet Mask                      : 255.255.255.0\nDefault Gateway                  : 192.168.1.1', delay: 3200, color: '#0a0' },
+                { cmd: '', delay: 4000 },
+                { cmd: 'C:\\Users\\Agent> cd /d Z:\\SecureFiles', delay: 4800 },
+                { cmd: '', delay: 5600 },
+                { cmd: 'Z:\\SecureFiles> dir /s /b *.b64', delay: 6400 },
+                { output: 'Searching for encrypted files...', delay: 7200, color: '#ff0' },
+                { output: '[████████████████████████] 100% Complete', delay: 8000, color: '#0f0' },
+                { output: '\nFound: 1 file(s)', delay: 8800, color: '#0f0' },
+                { cmd: '', delay: 9600 },
+                { output: 'Z:\\SecureFiles\\download\\filesname\\revil\\encodetext.b64', delay: 10400, color: '#0ff', highlight: true },
+                { cmd: '', delay: 11200 },
+                { cmd: 'Z:\\SecureFiles> echo File location saved successfully', delay: 12000 },
+                { output: 'File location saved successfully', delay: 12800, color: '#0f0' },
+                { cmd: '', delay: 13600 },
+                { cmd: 'Z:\\SecureFiles> _', delay: 14400, cursor: true }
+            ];
+
+            commands.forEach((item) => {
+                setTimeout(() => {
+                    if (item.cmd !== undefined) {
+                        // Command line
+                        const cmdLine = document.createElement('div');
+                        cmdLine.style.marginTop = '4px';
+                        
+                        if (item.cursor) {
+                            cmdLine.innerHTML = `<span style="color: #0f0;">${item.cmd.replace('_', '')}</span><span style="animation: blink 1s infinite;">█</span>`;
+                        } else {
+                            cmdLine.innerHTML = `<span style="color: #0f0;">${item.cmd}</span>`;
+                        }
+                        content.appendChild(cmdLine);
+                    } else if (item.output !== undefined) {
+                        // Command output
+                        const outputLine = document.createElement('div');
+                        outputLine.style.cssText = `
+                            margin: 4px 0 4px 10px;
+                            color: ${item.color || '#0a0'};
+                            white-space: pre-line;
+                            ${item.highlight ? 'font-size: 15px; font-weight: bold; text-shadow: 0 0 15px #0ff; letter-spacing: 0.5px;' : ''}
+                        `;
+                        outputLine.textContent = item.output;
+                        content.appendChild(outputLine);
+                    }
+                    
+                    // Auto scroll to bottom
+                    content.scrollTop = content.scrollHeight;
+                }, item.delay);
+            });
+
+            // Add blink animation for cursor
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes blink {
+                    0%, 50% { opacity: 1; }
+                    51%, 100% { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
     </script>
 </body>
 </html>
