@@ -1,106 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Company login</title>
-    <meta name="description" content="Company login page created by Nadeem" />
-
-    <!-- Pico.css -->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css"
-    />
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Beneath The Mask</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-      /* Grid */
-      body {
-        background-image: url(/static/img/image.png);
-        background-size: 100%;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        background-position: center;
-        height: 100%;
-        width: 100%;
-        border: red;
-      }
-
-      html {
-        zoom: 75%;
-      }
-
-      article {
-        padding: 10;
-        width: 150%;
-        justify-content: flex-start;
-      }
-
-      body > main {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        position: relative;
-        top: -75px;
-        min-height: calc(100vh - 7rem);
-        opacity: 80%;
-      }
-
-      hgroup {
-        text-align: center;
-        -webkit-text-fill-color: red;
-      }
+        :root {
+            --bg-color: #0a0a0a;
+            --window-bg: #0d0d0d;
+            --text-color: #00ff41;
+            --text-dim: #00aa2a;
+            --accent: #00ff41;
+            --border-color: #1a1a1a;
+            --error-color: #ff0040;
+            --success-color: #00ff41;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; overflow: hidden; font-family: 'Fira Code', 'Share Tech Mono', monospace; background-color: #000; color: var(--text-color); }
+        #desktop-screen { background: url('/static/img/wallpaper.jpg') no-repeat center center/cover; width: 100%; height: 100vh; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
+        #desktop-screen::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px); pointer-events: none; z-index: 1000; }
+        #desktop { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1; }
+        .icon { width: 80px; text-align: center; cursor: pointer; padding: 10px; border-radius: 4px; transition: all 0.2s; }
+        .icon:hover { background: rgba(0,255,65,0.1); box-shadow: 0 0 10px rgba(0,255,65,0.2); }
+        .icon-img { width: 48px; height: 48px; background: rgba(0,255,65,0.1); border: 1px solid var(--accent); border-radius: 8px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--accent); }
+        .icon-label { font-size: 11px; color: var(--text-color); text-shadow: 0 0 10px rgba(0,255,65,0.5), 1px 1px 2px black; user-select: none; }
+        .window { position: absolute; background: var(--window-bg); border: 1px solid var(--accent); box-shadow: 0 0 30px rgba(0,255,65,0.2), 0 10px 40px rgba(0,0,0,0.8); display: none; flex-direction: column; min-width: 300px; z-index: 10; }
+        .window.active { display: flex; }
+        .title-bar { background: #0a0a0a; padding: 8px 12px; cursor: move; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--accent); user-select: none; }
+        .title-bar-left { display: flex; align-items: center; gap: 10px; }
+        .window-controls { display: flex; gap: 6px; }
+        .window-btn { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
+        .btn-close { background: #ff5f57; }
+        .btn-minimize { background: #ffbd2e; }
+        .btn-maximize { background: #28ca41; }
+        .title-bar-title { color: var(--accent); font-size: 11px; text-shadow: 0 0 10px rgba(0,255,65,0.5); }
+        .window-content { padding: 15px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        .dashboard-header { text-align: center; margin-bottom: 15px; }
+        .dashboard-header h1 { color: var(--accent); font-size: 18px; font-weight: 700; margin-bottom: 5px; text-shadow: 0 0 20px rgba(0,255,65,0.5); }
+        .dashboard-header h1::before { content: '> '; }
+        .dashboard-header h2 { color: var(--text-dim); font-size: 11px; font-weight: 400; }
+        .table-container { flex: 1; overflow: auto; border: 1px solid var(--accent); background: rgba(0,0,0,0.3); }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        thead { position: sticky; top: 0; z-index: 10; }
+        th { background: #0a0a0a; color: var(--accent); padding: 10px 8px; text-align: left; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px; border-bottom: 1px solid var(--accent); }
+        td { padding: 8px; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
+        tbody tr:hover { background: rgba(0,255,65,0.05); }
+        tbody tr:nth-child(even) { background: rgba(0,0,0,0.2); }
+        tbody tr:nth-child(even):hover { background: rgba(0,255,65,0.05); }
+        .status-true { color: var(--success-color); font-weight: 600; }
+        .status-true::before { content: ' '; }
+        .status-false { color: var(--error-color); font-weight: 600; }
+        .status-false::before { content: ' '; }
+        .table-container::-webkit-scrollbar { width: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #0a0a0a; }
+        .table-container::-webkit-scrollbar-thumb { background: var(--accent); }
+        #taskbar { height: 40px; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-top: 1px solid var(--accent); z-index: 100; }
+        #taskbar-left { display: flex; align-items: center; gap: 10px; }
+        #start-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 5px 15px; font-size: 11px; font-family: 'Fira Code', monospace; cursor: pointer; }
+        #start-btn:hover { background: rgba(0,255,65,0.1); box-shadow: 0 0 10px rgba(0,255,65,0.3); }
+        .taskbar-item { background: rgba(0,255,65,0.1); border: 1px solid var(--border-color); color: var(--accent); padding: 5px 12px; font-size: 10px; cursor: pointer; }
+        .taskbar-item.active { border-color: var(--accent); background: rgba(0,255,65,0.2); }
+        #taskbar-right { display: flex; align-items: center; gap: 15px; }
+        #clock { font-size: 11px; color: var(--accent); text-shadow: 0 0 10px rgba(0,255,65,0.5); }
     </style>
-  </head>
-
-  <body>
-    <nav class="container-fluid">
-      <ul>
-        <li>
-          <a href="./$lapassion$" class="contrast"
-            ><strong>Company Login</strong></a
-          >
-        </li>
-      </ul>
-    </nav>
-    <hgroup>
-      <h1>Admin dashboard</h1>
-      <h2>Results</h2>
-    </hgroup>
-    <main class="container">
-      <article class="badge-primary">
-        <table class="table table-hover table-dark">
-          <thead>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">College</th>
-            <th scope="col">Password</th>
-            <th scope="col">password time</th>
-            <th scope="col">Security Question</th>
-            <th scope="col">Security time</th>
-            <th scope="col">two factor</th>
-
-            <th scope="col">completed time</th>
-          </thead>
-          <tbody>
-            {%for usr in users%}
-            <tr>
-              <td scope="row">{{usr.id}}</td>
-              <td>{{usr.username}}</td>
-              <td>{{usr.teamname}}</td>
-              <td>{{usr.ispassword}}</td>
-              <td>{{usr.passwordtime}}</td>
-              <td>{{usr.issecurityquestion}}</td>
-              <td>{{usr.securitytime}}</td>
-              <td>{{usr.isofa}}</td>
-              <td>{{usr.completed}}</td>
-            </tr>
-
-            <tr>
-              {%endfor%}
-            </tr>
-          </tbody>
-        </table>
-      </article>
-    </main>
-  </body>
+</head>
+<body>
+    <div id="desktop-screen">
+        <div id="desktop">
+            <div class="icon" onclick="openWindow('dashboard-window')"><div class="icon-img"></div><div class="icon-label">Dashboard</div></div>
+            <div class="icon"><div class="icon-img"></div><div class="icon-label">Users</div></div>
+            <div class="icon"><div class="icon-img">>_</div><div class="icon-label">Terminal</div></div>
+            <div class="icon"><div class="icon-img"></div><div class="icon-label">Settings</div></div>
+        </div>
+        <div id="dashboard-window" class="window active" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 1000px; height: 70%;">
+            <div class="title-bar" onmousedown="startDrag(event, 'dashboard-window')">
+                <div class="title-bar-left">
+                    <div class="window-controls">
+                        <div class="window-btn btn-close" onclick="closeWindow('dashboard-window')"></div>
+                        <div class="window-btn btn-minimize"></div>
+                        <div class="window-btn btn-maximize"></div>
+                    </div>
+                    <span class="title-bar-title">admin_dashboard.exe</span>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="dashboard-header">
+                    <h1>Admin Dashboard</h1>
+                    <h2>// Participant Results Overview</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th><th>Name</th><th>College</th><th>Password</th><th>Pass Time</th><th>Security Q</th><th>Sec Time</th><th>2FA</th><th>Completed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usr in users %}
+                            <tr>
+                                <td>{{ usr.id }}</td>
+                                <td>{{ usr.username }}</td>
+                                <td>{{ usr.teamname }}</td>
+                                <td class="{{ 'status-true' if usr.ispassword else 'status-false' }}">{{ usr.ispassword }}</td>
+                                <td>{{ usr.passwordtime }}</td>
+                                <td class="{{ 'status-true' if usr.issecurityquestion else 'status-false' }}">{{ usr.issecurityquestion }}</td>
+                                <td>{{ usr.securitytime }}</td>
+                                <td class="{{ 'status-true' if usr.isofa else 'status-false' }}">{{ usr.isofa }}</td>
+                                <td>{{ usr.completed }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="taskbar">
+            <div id="taskbar-left">
+                <div id="start-btn">[ START ]</div>
+                <div class="taskbar-item active" onclick="openWindow('dashboard-window')">admin_dashboard</div>
+            </div>
+            <div id="taskbar-right"><div id="clock">00:00</div></div>
+        </div>
+    </div>
+    <script>
+        function updateClock() { const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+        setInterval(updateClock, 1000); updateClock();
+        let zIndexCounter = 10;
+        function openWindow(id) { const win = document.getElementById(id); win.classList.add('active'); bringToFront(win); }
+        function closeWindow(id) { document.getElementById(id).classList.remove('active'); }
+        function bringToFront(element) { zIndexCounter++; element.style.zIndex = zIndexCounter; }
+        let isDragging = false, currentWindow = null, offset = { x: 0, y: 0 };
+        function startDrag(e, id) { isDragging = true; currentWindow = document.getElementById(id); bringToFront(currentWindow); const rect = currentWindow.getBoundingClientRect(); offset.x = e.clientX - rect.left; offset.y = e.clientY - rect.top; currentWindow.style.transform = 'none'; currentWindow.style.left = rect.left + 'px'; currentWindow.style.top = rect.top + 'px'; document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag); }
+        function drag(e) { if (!isDragging || !currentWindow) return; e.preventDefault(); currentWindow.style.left = (e.clientX - offset.x) + 'px'; currentWindow.style.top = (e.clientY - offset.y) + 'px'; }
+        function stopDrag() { isDragging = false; currentWindow = null; document.removeEventListener('mousemove', drag); document.removeEventListener('mouseup', stopDrag); }
+    </script>
+</body>
 </html>

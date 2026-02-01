@@ -1,156 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Company login</title>
-    <meta name="description" content="Company login page created by Nadeem" />
-
-    <!-- Pico.css -->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css"
-    />
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Verification - Beneath The Mask</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-      /* Grid */
-      body {
-        background-image: url(/static/img/image.png);
-        background-size: 100%;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        background-position: center;
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-      }
-
-      h6 {
-        text-align: left;
-      }
-
-      article {
-        text-align: center;
-      }
-
-      article {
-        padding: 0;
-        overflow: hidden;
-        width: 800px;
-        height: 750px;
-        justify-content: center;
-      }
-
-      body > main {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        position: relative;
-        top: -75px;
-        min-height: calc(100vh - 7rem);
-        opacity: 80%;
-      }
-
-      .alert.error {
-        padding: 12px;
-        border-radius: 3px;
-        font-size: 1.2rem;
-        margin-bottom: 16px;
-        border: 2px solid darkred;
-        background-color: red;
-        color: white;
-      }
-
-      .alert.success {
-        padding: 12px;
-        border-radius: 3px;
-        font-size: 1.2rem;
-        margin-bottom: 16px;
-        border: 2px solid orange;
-        background-color: green;
-        color: black;
-      }
-
-      .alert.doubt {
-        padding: 12px;
-        border-radius: 3px;
-        font-size: 1.2rem;
-        margin-bottom: 16px;
-        border: 2px solid orange;
-        background-color: yellow;
-        color: black;
-      }
-
-      html {
-        zoom: 75%;
-      }
-
-      @media (min-width: 1200px) {
-        article div {
-          padding: 50px;
-          justify-content: center;
+        :root {
+            --bg-color: #0a0a0a;
+            --window-bg: #0d0d0d;
+            --text-color: #00ff41;
+            --text-dim: #00aa2a;
+            --accent: #00ff41;
+            --border-color: #1a1a1a;
+            --error-color: #ff0040;
+            --warning-color: #ffbd2e;
         }
-      }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Fira Code', 'Share Tech Mono', monospace;
+            background-color: #000;
+            color: var(--text-color);
+        }
+        #desktop-screen {
+            background: url('/static/img/wallpaper.jpg') no-repeat center center/cover;
+            width: 100%; height: 100vh;
+            position: relative;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        #desktop-screen::after {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+            pointer-events: none; z-index: 1000;
+        }
+        #desktop { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1; }
+        .icon { width: 80px; text-align: center; cursor: pointer; padding: 10px; border-radius: 4px; transition: all 0.2s; }
+        .icon:hover { background: rgba(0,255,65,0.1); box-shadow: 0 0 10px rgba(0,255,65,0.2); }
+        .icon-img { width: 48px; height: 48px; background: rgba(0,255,65,0.1); border: 1px solid var(--accent); border-radius: 8px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--accent); }
+        .icon-label { font-size: 11px; color: var(--text-color); text-shadow: 0 0 10px rgba(0,255,65,0.5), 1px 1px 2px black; user-select: none; }
+        .window { position: absolute; background: var(--window-bg); border: 1px solid var(--accent); box-shadow: 0 0 30px rgba(0,255,65,0.2), 0 10px 40px rgba(0,0,0,0.8); display: none; flex-direction: column; min-width: 300px; z-index: 10; }
+        .window.active { display: flex; }
+        .title-bar { background: #0a0a0a; padding: 8px 12px; cursor: move; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--accent); user-select: none; }
+        .title-bar-left { display: flex; align-items: center; gap: 10px; }
+        .window-controls { display: flex; gap: 6px; }
+        .window-btn { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
+        .btn-close { background: #ff5f57; }
+        .btn-minimize { background: #ffbd2e; }
+        .btn-maximize { background: #28ca41; }
+        .title-bar-title { color: var(--accent); font-size: 11px; text-shadow: 0 0 10px rgba(0,255,65,0.5); }
+        .window-content { padding: 20px; flex-grow: 1; overflow-y: auto; }
+        .alert { padding: 8px 12px; font-size: 11px; margin-bottom: 12px; border-left: 3px solid; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .alert.error { background: rgba(255,0,0,0.1); border-left-color: var(--error-color); color: var(--error-color); }
+        .alert.error::before { content: '[ERROR] '; font-weight: 600; }
+        .alert.success { background: rgba(0,255,65,0.1); border-left-color: var(--accent); color: var(--accent); }
+        .alert.success::before { content: '[OK] '; font-weight: 600; }
+        .alert.doubt, .alert.danger { background: rgba(255,189,46,0.1); border-left-color: var(--warning-color); color: var(--warning-color); }
+        .alert.doubt::before { content: '[WARNING] '; font-weight: 600; }
+        .alert.danger::before { content: '[DANGER] '; font-weight: 600; }
+        .security-icon { text-align: center; margin-bottom: 15px; font-size: 40px; }
+        .form-title { color: var(--accent); font-size: 16px; font-weight: 600; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(0,255,65,0.5); text-align: center; }
+        .form-title::before { content: '> '; }
+        .form-subtitle { color: var(--text-dim); font-size: 10px; margin-bottom: 20px; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; color: var(--accent); font-size: 10px; font-weight: 500; margin-bottom: 5px; }
+        .form-group label::before { content: '$ '; color: var(--text-dim); }
+        .form-group input { width: 100%; padding: 10px 12px; background: #0a0a0a; border: 1px solid var(--border-color); color: var(--accent); font-size: 12px; font-family: 'Fira Code', monospace; transition: all 0.3s ease; }
+        .form-group input::placeholder { color: #00552a; }
+        .form-group input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 10px rgba(0,255,65,0.3); }
+        .submit-btn { width: 100%; padding: 12px; background: transparent; border: 2px solid var(--accent); color: var(--accent); font-size: 12px; font-weight: 600; font-family: 'Fira Code', monospace; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
+        .submit-btn:hover { background: rgba(0,255,65,0.1); box-shadow: 0 0 20px rgba(0,255,65,0.4); text-shadow: 0 0 10px rgba(0,255,65,0.8); }
+        #taskbar { height: 40px; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-top: 1px solid var(--accent); z-index: 100; }
+        #taskbar-left { display: flex; align-items: center; gap: 10px; }
+        #start-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 5px 15px; font-size: 11px; font-family: 'Fira Code', monospace; cursor: pointer; }
+        #start-btn:hover { background: rgba(0,255,65,0.1); box-shadow: 0 0 10px rgba(0,255,65,0.3); }
+        .taskbar-item { background: rgba(0,255,65,0.1); border: 1px solid var(--border-color); color: var(--accent); padding: 5px 12px; font-size: 10px; cursor: pointer; }
+        .taskbar-item.active { border-color: var(--accent); background: rgba(0,255,65,0.2); }
+        #taskbar-right { display: flex; align-items: center; gap: 15px; }
+        #clock { font-size: 11px; color: var(--accent); text-shadow: 0 0 10px rgba(0,255,65,0.5); }
     </style>
-  </head>
-
-  <body>
-    <nav class="container-fluid">
-      <ul>
-        <li>
-          <a href="./" class="contrast"><strong>Company Login</strong></a>
-        </li>
-      </ul>
-    </nav>
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %} {% for category, message in messages %}
-    <div class="alert {{ category }}">{{ message|capitalize }}</div>
-    {% endfor %} {% endif %} {% endwith %}
-    <main class="container">
-      <article class="badge-primary">
-        <div>
-          <hgroup>
-            <h1>Security Questions</h1>
-            <h2>Please answer the security questions</h2>
-          </hgroup>
-          <form method="POST">
-            <h6>
-              Enter your date of birth according to lunar calendar (DD/MM/YYYY)?
-            </h6>
-            <input
-              type="text"
-              id="Catname"
-              name="Catname"
-              placeholder="Lunar DOB"
-              aria-label="What was your first cat?"
-              autocomplete="nickname"
-              required
-            />
-            <h6>What is the name of your pet?</h6>
-            <input
-              type="text"
-              id="Hometown"
-              name="Hometown"
-              placeholder="Pet Name"
-              aria-label="Which city is your parent's hometown?"
-              autocomplete="nickname"
-              required
-            />
-            <h6>Who is your favourite artist?</h6>
-            <input
-              type="text"
-              id="Food"
-              name="Food"
-              placeholder="Music Artist"
-              aria-label="What's your favourite food?"
-              autocomplete="nickname"
-              required
-            />
-            <button id="submit" type="submit" class="contrast">Login</button>
-          </form>
+</head>
+<body>
+    <div id="desktop-screen">
+        <div id="desktop">
+            <div class="icon" onclick="openWindow('security-window')"><div class="icon-img"></div><div class="icon-label">Security</div></div>
+            <div class="icon" onclick="showLockedMessage()"><div class="icon-img"></div><div class="icon-label">Case Files</div></div>
+            <div class="icon" onclick="showLockedMessage()"><div class="icon-img">>_</div><div class="icon-label">Terminal</div></div>
+            <div class="icon" onclick="showLockedMessage()"><div class="icon-img"></div><div class="icon-label">Secret</div></div>
         </div>
-        <div></div>
-      </article>
-    </main>
-  </body>
+        <div id="security-window" class="window active" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 420px;">
+            <div class="title-bar" onmousedown="startDrag(event, 'security-window')">
+                <div class="title-bar-left">
+                    <div class="window-controls">
+                        <div class="window-btn btn-close" onclick="closeWindow('security-window')"></div>
+                        <div class="window-btn btn-minimize"></div>
+                        <div class="window-btn btn-maximize"></div>
+                    </div>
+                    <span class="title-bar-title">security_verification.exe</span>
+                </div>
+            </div>
+            <div class="window-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert {{ category }}">{{ message|capitalize }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <div class="security-icon"></div>
+                <div class="form-title">Security Questions</div>
+                <div class="form-subtitle">// Verify your identity to proceed</div>
+                <form method="POST">
+                    <div class="form-group"><label>lunar_calendar_dob (DD/MM/YYYY)</label><input type="text" id="Catname" name="Catname" placeholder="enter_lunar_dob" autocomplete="off" required /></div>
+                    <div class="form-group"><label>pet_name</label><input type="text" id="Hometown" name="Hometown" placeholder="enter_pet_name" autocomplete="off" required /></div>
+                    <div class="form-group"><label>favorite_artist</label><input type="text" id="Food" name="Food" placeholder="enter_artist_name" autocomplete="off" required /></div>
+                    <button type="submit" class="submit-btn">[ Verify Identity ]</button>
+                </form>
+            </div>
+        </div>
+        <div id="locked-window" class="window" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px;">
+            <div class="title-bar" onmousedown="startDrag(event, 'locked-window')">
+                <div class="title-bar-left">
+                    <div class="window-controls">
+                        <div class="window-btn btn-close" onclick="closeWindow('locked-window')"></div>
+                        <div class="window-btn btn-minimize"></div>
+                        <div class="window-btn btn-maximize"></div>
+                    </div>
+                    <span class="title-bar-title">access_denied.exe</span>
+                </div>
+            </div>
+            <div class="window-content" style="text-align: center;">
+                <div style="font-size: 40px; margin-bottom: 15px;"></div>
+                <div class="form-title" style="font-size: 14px;">Access Denied</div>
+                <div class="form-subtitle" style="margin-top: 10px;">// Complete security verification first.</div>
+            </div>
+        </div>
+        <div id="taskbar">
+            <div id="taskbar-left">
+                <div id="start-btn">[ START ]</div>
+                <div class="taskbar-item active" onclick="openWindow('security-window')">security_verify</div>
+            </div>
+            <div id="taskbar-right"><div id="clock">00:00</div></div>
+        </div>
+    </div>
+    <script>
+        function updateClock() { const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+        setInterval(updateClock, 1000); updateClock();
+        let zIndexCounter = 10;
+        function openWindow(id) { const win = document.getElementById(id); win.classList.add('active'); bringToFront(win); }
+        function closeWindow(id) { document.getElementById(id).classList.remove('active'); }
+        function bringToFront(element) { zIndexCounter++; element.style.zIndex = zIndexCounter; }
+        function showLockedMessage() { openWindow('locked-window'); }
+        let isDragging = false, currentWindow = null, offset = { x: 0, y: 0 };
+        function startDrag(e, id) { isDragging = true; currentWindow = document.getElementById(id); bringToFront(currentWindow); const rect = currentWindow.getBoundingClientRect(); offset.x = e.clientX - rect.left; offset.y = e.clientY - rect.top; currentWindow.style.transform = 'none'; currentWindow.style.left = rect.left + 'px'; currentWindow.style.top = rect.top + 'px'; document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag); }
+        function drag(e) { if (!isDragging || !currentWindow) return; e.preventDefault(); currentWindow.style.left = (e.clientX - offset.x) + 'px'; currentWindow.style.top = (e.clientY - offset.y) + 'px'; }
+        function stopDrag() { isDragging = false; currentWindow = null; document.removeEventListener('mousemove', drag); document.removeEventListener('mouseup', stopDrag); }
+    </script>
+</body>
 </html>
