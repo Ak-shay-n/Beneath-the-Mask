@@ -36,8 +36,8 @@ def login_page():
 def security():
     wrongans = []
     if request.method == "POST":
-        creds = {"Catname": "30/12/2004", "Hometown": "DIYA", "Food": "ARIJIT SINGH"}
-        Catname = request.form.get("Catnamxe")
+        creds = {"Catname": "30/12/2004", "Hometown": "DIYA", "Food": "SANJAY@111122"}
+        Catname = request.form.get("Catname")
         Hometown = request.form.get("Hometown")
         Food = request.form.get("Food")
         if (
