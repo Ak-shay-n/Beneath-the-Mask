@@ -46,14 +46,12 @@
         /* WiFi Popup Window */
         .window { position: absolute; background: #1a1a1a; border: 1px solid #333; box-shadow: 0 8px 32px rgba(0,0,0,0.5); display: none; flex-direction: column; min-width: 320px; z-index: 500; border-radius: 8px; overflow: hidden; }
         .window.active { display: flex; }
-        .title-bar { background: #2d2d2d; padding: 10px 15px; cursor: move; display: flex; justify-content: space-between; align-items: center; user-select: none; }
-        .title-bar-left { display: flex; align-items: center; gap: 12px; }
-        .window-controls { display: flex; gap: 8px; }
-        .window-btn { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; transition: opacity 0.2s; }
-        .window-btn:hover { opacity: 0.8; }
-        .btn-close { background: #ff5f57; }
-        .btn-minimize { background: #ffbd2e; }
-        .btn-maximize { background: #28ca41; }
+        .title-bar { background: #2d2d2d; padding: 0; cursor: move; display: flex; justify-content: space-between; align-items: center; user-select: none; height: 32px; }
+        .title-bar-left { display: flex; align-items: center; gap: 12px; padding-left: 12px; }
+        .window-controls { display: flex; height: 100%; }
+        .window-btn { width: 46px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #888; font-size: 10px; transition: background 0.15s; }
+        .window-btn:hover { background: rgba(255,255,255,0.1); }
+        .btn-close:hover { background: #e81123 !important; color: #fff; }
         .title-bar-title { color: #fff; font-size: 12px; font-weight: 500; }
         .window-content { padding: 0; flex-grow: 1; overflow-y: auto; background: #1e1e1e; }
         
@@ -142,6 +140,60 @@
         .power-item:hover { background: rgba(255,255,255,0.1); }
         .power-item .item-icon { font-size: 16px; width: 24px; text-align: center; }
         .power-item .item-label { color: #ccc; font-size: 12px; }
+
+        /* Terminal Window */
+        #app-terminal-window { width: 550px; height: 380px; top: 80px; left: 120px; display: none; position: absolute; z-index: 100; }
+        #app-terminal-window.active { display: block; }
+        .app-terminal-content { background: #0c0c0c; height: calc(100% - 32px); padding: 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; color: #00ff00; overflow-y: auto; display: flex; flex-direction: column; border: 1px solid #00ff41; border-top: none; }
+        .app-terminal-output { flex: 1; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
+        .app-terminal-output .cmd-line { color: #00ff00; }
+        .app-terminal-output .cmd-response { color: #cccccc; margin-bottom: 8px; }
+        .app-terminal-input-line { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+        .app-terminal-input-line .prompt { color: #00ff00; white-space: nowrap; }
+        #app-terminal-input { flex: 1; background: transparent; border: none; outline: none; color: #00ff00; font-family: inherit; font-size: inherit; caret-color: #00ff00; }
+
+        /* Settings Window */
+        #app-settings-window { width: 400px; top: 100px; left: 200px; display: none; position: absolute; z-index: 100; }
+        #app-settings-window.active { display: block; }
+        .app-settings-content { padding: 20px; max-height: 400px; overflow-y: auto; background: #1a1a1a; border: 1px solid #00ff41; border-top: none; }
+        .app-settings-section { margin-bottom: 20px; }
+        .app-settings-section-title { font-size: 12px; color: #00ff41; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #333; }
+        .app-setting-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .app-setting-item:last-child { border-bottom: none; }
+        .app-setting-label { color: #fff; font-size: 13px; }
+        .app-setting-desc { color: #888; font-size: 11px; margin-top: 2px; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; border-radius: 24px; transition: 0.3s; }
+        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        .toggle-switch input:checked + .toggle-slider { background: #00ff41; }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+        /* Notepad Window */
+        #app-notepad-window { width: 500px; height: 400px; top: 60px; left: 150px; display: none; position: absolute; z-index: 100; }
+        #app-notepad-window.active { display: block; }
+        .app-notepad-content { background: #1e1e1e; height: calc(100% - 32px); display: flex; flex-direction: column; border: 1px solid #00ff41; border-top: none; }
+        .app-notepad-toolbar { background: #2d2d2d; padding: 4px 8px; border-bottom: 1px solid #333; display: flex; gap: 15px; font-size: 12px; color: #888; }
+        .app-notepad-toolbar span { cursor: pointer; padding: 2px 8px; border-radius: 3px; }
+        .app-notepad-toolbar span:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        #app-notepad-textarea { flex: 1; background: #1e1e1e; border: none; color: #d4d4d4; font-family: 'Consolas', monospace; font-size: 14px; padding: 12px; resize: none; outline: none; line-height: 1.5; }
+        #app-notepad-textarea::placeholder { color: #555; }
+
+        /* Calculator Window */
+        #app-calculator-window { width: 320px; top: 80px; left: 250px; display: none; position: absolute; z-index: 100; }
+        #app-calculator-window.active { display: block; }
+        .app-calculator-content { background: #202020; border: 1px solid #00ff41; border-top: none; padding: 15px; }
+        #calc-display { width: 100%; background: #0a0a0a; border: 1px solid #333; color: #00ff41; font-size: 28px; font-family: 'Consolas', monospace; text-align: right; padding: 15px; margin-bottom: 15px; box-sizing: border-box; border-radius: 4px; }
+        .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btn { background: #333; border: none; color: #fff; font-size: 18px; padding: 18px; cursor: pointer; border-radius: 4px; transition: all 0.15s; font-family: 'Segoe UI', sans-serif; }
+        .calc-btn:hover { background: #444; }
+        .calc-btn:active { transform: scale(0.95); }
+        .calc-btn.operator { background: #00aa41; color: #000; font-weight: bold; }
+        .calc-btn.operator:hover { background: #00cc41; }
+        .calc-btn.equals { background: #00ff41; color: #000; font-weight: bold; }
+        .calc-btn.equals:hover { background: #33ff66; }
+        .calc-btn.clear { background: #ff4444; color: #fff; }
+        .calc-btn.clear:hover { background: #ff6666; }
 
         /* Shutdown Overlay */
         #shutdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
@@ -232,12 +284,12 @@
         <div id="wifi-window" class="window" style="bottom: 54px; right: 10px; width: 360px;">
             <div class="title-bar" onmousedown="startDrag(event, 'wifi-window')">
                 <div class="title-bar-left">
-                    <div class="window-controls">
-                        <div class="window-btn btn-close" onclick="closeWindow('wifi-window')"></div>
-                        <div class="window-btn btn-minimize"></div>
-                        <div class="window-btn btn-maximize"></div>
-                    </div>
                     <span class="title-bar-title">Network & Internet</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeWindow('wifi-window')">✕</div>
                 </div>
             </div>
             <div class="window-content">
@@ -286,11 +338,11 @@
                 
                 {% if not show_terminal %}
                 <div class="wifi-password-section" id="password-section">
-                    <label>Enter the network security key</label>
+                    <label>Enter the WiFi password</label>
                     <form method="POST" id="wifi-form" onsubmit="return handleConnect(event)">
                         <input type="hidden" name="Catname" value="30/12/2004">
                         <input type="hidden" name="Hometown" value="DIYA">
-                        <input type="password" class="wifi-password-input" id="wifi-password" name="Food" placeholder="Network security key" autocomplete="off" required>
+                        <input type="password" class="wifi-password-input" id="wifi-password" name="Food" placeholder="Enter password" autocomplete="off" required>
                         <button type="submit" class="wifi-connect-btn" id="connect-btn">Connect</button>
                     </form>
                 </div>
@@ -354,6 +406,128 @@
             <div class="shutdown-text" id="shutdown-text">Shutting down...</div>
         </div>
 
+        <!-- App Terminal Window -->
+        <div id="app-terminal-window" class="window">
+            <div class="title-bar" onmousedown="startDrag(event, 'app-terminal-window')">
+                <div class="title-bar-left"><span class="title-bar-title">Terminal</span></div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeAppWindow('app-terminal-window')">✕</div>
+                </div>
+            </div>
+            <div class="app-terminal-content">
+                <div class="app-terminal-output" id="app-terminal-output">
+                    <div class="cmd-response">JK-OS Terminal v2.0.26 [Restricted Access]</div>
+                    <div class="cmd-response">Type 'help' for available commands.</div>
+                </div>
+                <div class="app-terminal-input-line">
+                    <span class="prompt">user@jk-system:~$</span>
+                    <input type="text" id="app-terminal-input" onkeydown="handleAppTerminalInput(event)" autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+        </div>
+
+        <!-- App Settings Window -->
+        <div id="app-settings-window" class="window">
+            <div class="title-bar" onmousedown="startDrag(event, 'app-settings-window')">
+                <div class="title-bar-left"><span class="title-bar-title">Settings</span></div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeAppWindow('app-settings-window')">✕</div>
+                </div>
+            </div>
+            <div class="app-settings-content">
+                <div class="app-settings-section">
+                    <div class="app-settings-section-title">System</div>
+                    <div class="app-setting-item">
+                        <div><div class="app-setting-label">Dark Mode</div><div class="app-setting-desc">Enable dark theme</div></div>
+                        <label class="toggle-switch"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="app-setting-item">
+                        <div><div class="app-setting-label">Animations</div><div class="app-setting-desc">Enable UI animations</div></div>
+                        <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+                <div class="app-settings-section">
+                    <div class="app-settings-section-title">Sound</div>
+                    <div class="app-setting-item">
+                        <div><div class="app-setting-label">System Sounds</div><div class="app-setting-desc">Play notification sounds</div></div>
+                        <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="app-setting-item">
+                        <div><div class="app-setting-label">Keyboard Clicks</div><div class="app-setting-desc">Play sound on keypress</div></div>
+                        <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+                <div class="app-settings-section">
+                    <div class="app-settings-section-title">Security</div>
+                    <div class="app-setting-item">
+                        <div><div class="app-setting-label">Firewall</div><div class="app-setting-desc">System firewall status</div></div>
+                        <label class="toggle-switch"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="app-setting-item">
+                        <div><div class="app-setting-label">Admin Access</div><div class="app-setting-desc">Requires authorization</div></div>
+                        <label class="toggle-switch"><input type="checkbox" disabled><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- App Notepad Window -->
+        <div id="app-notepad-window" class="window">
+            <div class="title-bar" onmousedown="startDrag(event, 'app-notepad-window')">
+                <div class="title-bar-left"><span class="title-bar-title">Notepad - Untitled</span></div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeAppWindow('app-notepad-window')">✕</div>
+                </div>
+            </div>
+            <div class="app-notepad-content">
+                <div class="app-notepad-toolbar">
+                    <span>File</span><span>Edit</span><span>Format</span><span>View</span><span>Help</span>
+                </div>
+                <textarea id="app-notepad-textarea" placeholder="Start typing... (Your notes won't be saved - JK controls this system 😈)"></textarea>
+            </div>
+        </div>
+
+        <!-- App Calculator Window -->
+        <div id="app-calculator-window" class="window">
+            <div class="title-bar" onmousedown="startDrag(event, 'app-calculator-window')">
+                <div class="title-bar-left"><span class="title-bar-title">Calculator</span></div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeAppWindow('app-calculator-window')">✕</div>
+                </div>
+            </div>
+            <div class="app-calculator-content">
+                <input type="text" id="calc-display" value="0" readonly>
+                <div class="calc-buttons">
+                    <button class="calc-btn clear" onclick="calcClear()">C</button>
+                    <button class="calc-btn operator" onclick="calcInput('/')">/</button>
+                    <button class="calc-btn operator" onclick="calcInput('*')">×</button>
+                    <button class="calc-btn operator" onclick="calcBackspace()">⌫</button>
+                    <button class="calc-btn" onclick="calcInput('7')">7</button>
+                    <button class="calc-btn" onclick="calcInput('8')">8</button>
+                    <button class="calc-btn" onclick="calcInput('9')">9</button>
+                    <button class="calc-btn operator" onclick="calcInput('-')">−</button>
+                    <button class="calc-btn" onclick="calcInput('4')">4</button>
+                    <button class="calc-btn" onclick="calcInput('5')">5</button>
+                    <button class="calc-btn" onclick="calcInput('6')">6</button>
+                    <button class="calc-btn operator" onclick="calcInput('+')">+</button>
+                    <button class="calc-btn" onclick="calcInput('1')">1</button>
+                    <button class="calc-btn" onclick="calcInput('2')">2</button>
+                    <button class="calc-btn" onclick="calcInput('3')">3</button>
+                    <button class="calc-btn equals" onclick="calcEquals()" style="grid-row: span 2;">=</button>
+                    <button class="calc-btn" onclick="calcInput('0')" style="grid-column: span 2;">0</button>
+                    <button class="calc-btn" onclick="calcInput('.')">.</button>
+                </div>
+            </div>
+        </div>
+
         <!-- JK Surprise Overlay - Intro Style -->
         <div id="jk-surprise-overlay">
             <div class="jk-surprise-container">
@@ -379,12 +553,12 @@
         <div id="file-explorer-window" class="window" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
             <div class="title-bar" onmousedown="startDrag(event, 'file-explorer-window')">
                 <div class="title-bar-left">
-                    <div class="window-controls">
-                        <div class="window-btn btn-close" onclick="closeWindow('file-explorer-window')"></div>
-                        <div class="window-btn btn-minimize"></div>
-                        <div class="window-btn btn-maximize"></div>
-                    </div>
                     <span class="title-bar-title">File Explorer</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeWindow('file-explorer-window')">✕</div>
                 </div>
             </div>
             <div class="file-explorer-toolbar">
@@ -569,9 +743,9 @@
             {% else %}
                 setTimeout(() => {
                     openWindow('wifi-window');
-                    // Auto-select the target network
-                    const targetNetwork = document.getElementById('target-network');
-                    selectNetwork(targetNetwork, 'meta_data');
+                    // Auto-select the first network
+                    const firstNetwork = document.getElementById('network-neighbor');
+                    selectNetwork(firstNetwork, 'neighbor_wifi');
                 }, 800);
             {% endif %}
         });
@@ -619,7 +793,7 @@
             // Close WiFi window first
             closeWindow('wifi-window');
 
-            // Create terminal window (CMD style)
+            // Create terminal window (Windows CMD style)
             const terminal = document.createElement('div');
             terminal.id = 'terminal-window';
             terminal.className = 'window';
@@ -628,167 +802,437 @@
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
-                width: 750px;
-                height: 500px;
+                width: 850px;
+                height: 550px;
                 background: #0c0c0c;
-                border: 1px solid #00ff00;
-                box-shadow: 0 20px 60px rgba(0,255,65,0.3);
+                border: none;
+                box-shadow: 0 10px 50px rgba(0,0,0,0.8);
                 z-index: 100;
                 display: flex;
                 flex-direction: column;
-                font-family: 'Consolas', 'Courier New', monospace;
+                font-family: 'Consolas', 'Lucida Console', monospace;
+                border-radius: 8px;
+                overflow: hidden;
             `;
 
-            // Terminal title bar
+            // Windows-style title bar
             const titleBar = document.createElement('div');
             titleBar.className = 'title-bar';
             titleBar.onmousedown = (e) => startDrag(e, 'terminal-window');
             titleBar.style.cssText = `
-                background: #1e1e1e;
-                padding: 10px 15px;
+                background: #000;
+                padding: 8px 12px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                border-bottom: 1px solid #00ff00;
                 cursor: move;
+                border-bottom: 1px solid #333;
             `;
             titleBar.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="display: flex; gap: 6px;">
-                        <div style="width: 12px; height: 12px; background: #ff5f57; border-radius: 50%; cursor: pointer;" onclick="closeWindow('terminal-window')"></div>
-                        <div style="width: 12px; height: 12px; background: #ffbd2e; border-radius: 50%;"></div>
-                        <div style="width: 12px; height: 12px; background: #28ca41; border-radius: 50%;"></div>
-                    </div>
-                    <span style="color: #00ff00; font-size: 13px; text-shadow: 0 0 10px rgba(0,255,65,0.5);">⚡ Terminal - System Access</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 14px;">⬛</span>
+                    <span style="color: #ccc; font-size: 12px; font-family: 'Segoe UI', sans-serif;">Command Prompt - Agent@INVESTIGATION</span>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <div style="width: 45px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-family: 'Segoe UI', sans-serif;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='transparent'">─</div>
+                    <div style="width: 45px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-family: 'Segoe UI', sans-serif;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='transparent'">☐</div>
+                    <div style="width: 45px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-family: 'Segoe UI', sans-serif;" onmouseover="this.style.background='#e81123'" onmouseout="this.style.background='transparent'" onclick="closeWindow('terminal-window')">✕</div>
                 </div>
             `;
             terminal.appendChild(titleBar);
-
-            // System info bar
-            const infoBar = document.createElement('div');
-            infoBar.style.cssText = `
-                background: #0c0c0c;
-                padding: 6px 15px;
-                color: #00ff00;
-                font-size: 10px;
-                border-bottom: 1px solid #1a1a1a;
-                display: flex;
-                justify-content: space-between;
-                font-weight: 500;
-            `;
-            infoBar.innerHTML = `
-                <span>System: Windows 10 | Network: meta_data | Status: <span style="color: #00ff00;">●</span> CONNECTED</span>
-                <span id="terminal-time">${new Date().toLocaleTimeString()}</span>
-            `;
-            terminal.appendChild(infoBar);
 
             // Terminal content area
             const content = document.createElement('div');
             content.style.cssText = `
                 flex: 1;
-                padding: 15px;
+                padding: 10px 15px;
                 overflow-y: auto;
                 background: #0c0c0c;
-                color: #00ff00;
-                font-size: 13px;
-                line-height: 1.5;
+                color: #cccccc;
+                font-size: 14px;
+                line-height: 1.4;
             `;
             content.id = 'terminal-content';
             terminal.appendChild(content);
 
+            // Input line container
+            const inputContainer = document.createElement('div');
+            inputContainer.id = 'terminal-input-container';
+            inputContainer.style.cssText = `
+                display: none;
+                padding: 5px 15px 15px;
+                background: #0c0c0c;
+            `;
+            inputContainer.innerHTML = `
+                <div style="display: flex; align-items: center; color: #cccccc; font-size: 14px;">
+                    <span id="terminal-prompt">Z:\\SecureFiles&gt;</span>
+                    <input type="text" id="terminal-input" style="
+                        flex: 1;
+                        background: transparent;
+                        border: none;
+                        color: #cccccc;
+                        font-size: 14px;
+                        font-family: 'Consolas', 'Lucida Console', monospace;
+                        outline: none;
+                        margin-left: 8px;
+                    " autocomplete="off" spellcheck="false">
+                </div>
+            `;
+            terminal.appendChild(inputContainer);
+
             document.getElementById('desktop-screen').appendChild(terminal);
 
-            // Update time every second
-            setInterval(() => {
-                const timeEl = document.getElementById('terminal-time');
-                if (timeEl) timeEl.textContent = new Date().toLocaleTimeString();
-            }, 1000);
+            // Terminal state
+            let currentDir = 'Z:\\\\SecureFiles';
+            let commandHistory = [];
+            let historyIndex = -1;
 
-            // Initial prompt
-            const initialLine = document.createElement('div');
-            initialLine.innerHTML = `<span style="color: #0f0;">Microsoft Windows [Version 10.0.19044.1234]</span><br><span style="color: #0a0;">(c) Microsoft Corporation. All rights reserved.</span><br><br>`;
-            content.appendChild(initialLine);
+            // File system for terminal
+            const terminalFS = {
+                'C:': { type: 'dir', children: ['Windows', 'Users', 'Program Files'] },
+                'C:\\\\Windows': { type: 'dir', children: ['System32'] },
+                'C:\\\\Windows\\\\System32': { type: 'dir', children: ['cmd.exe', 'notepad.exe'] },
+                'C:\\\\Users': { type: 'dir', children: ['Agent'] },
+                'C:\\\\Users\\\\Agent': { type: 'dir', children: ['Desktop', 'Documents'] },
+                'Z:': { type: 'dir', children: ['SecureFiles'] },
+                'Z:\\\\SecureFiles': { type: 'dir', children: ['download', 'logs', 'config.ini'] },
+                'Z:\\\\SecureFiles\\\\download': { type: 'dir', children: ['filesname', 'temp'] },
+                'Z:\\\\SecureFiles\\\\download\\\\filesname': { type: 'dir', children: ['revil', 'backup'] },
+                'Z:\\\\SecureFiles\\\\download\\\\filesname\\\\revil': { type: 'dir', children: ['encodetext.b64'] },
+                'Z:\\\\SecureFiles\\\\logs': { type: 'dir', children: ['access.log', 'error.log'] }
+            };
 
-            // Commands to execute
-            const commands = [
-                { cmd: 'C:\\Users\\Agent> netsh wlan show interfaces', delay: 0 },
-                { output: 'Name                   : Wi-Fi\nDescription            : Intel(R) Wireless Adapter\nState                  : connected\nSSID                   : meta_data\nSignal                 : 100%', delay: 800, color: '#0a0' },
-                { cmd: '', delay: 1600 },
-                { cmd: 'C:\\Users\\Agent> ipconfig /all', delay: 2400 },
-                { output: 'Connection-specific DNS Suffix  : meta_data.local\nIPv4 Address                     : 192.168.1.157\nSubnet Mask                      : 255.255.255.0\nDefault Gateway                  : 192.168.1.1', delay: 3200, color: '#0a0' },
-                { cmd: '', delay: 4000 },
-                { cmd: 'C:\\Users\\Agent> cd /d Z:\\SecureFiles', delay: 4800 },
-                { cmd: '', delay: 5600 },
-                { cmd: 'Z:\\SecureFiles> dir /s /b *.b64', delay: 6400 },
-                { output: 'Searching for encrypted files...', delay: 7200, color: '#ff0' },
-                { output: '[████████████████████████] 100% Complete', delay: 8000, color: '#0f0' },
-                { output: '\nFound: 1 file(s)', delay: 8800, color: '#0f0' },
-                { cmd: '', delay: 9600 },
-                { output: 'Z:\\SecureFiles\\download\\filesname\\revil\\encodetext.b64', delay: 10400, color: '#0ff', highlight: true },
-                { cmd: '', delay: 11200 },
-                { cmd: 'Z:\\SecureFiles> echo File location saved successfully', delay: 12000 },
-                { output: 'File location saved successfully', delay: 12800, color: '#0f0' },
-                { cmd: '', delay: 13600 },
-                { cmd: 'Z:\\SecureFiles> _', delay: 14400, cursor: true }
-            ];
+            // Print to terminal
+            function printLine(text, color = '#cccccc', isHtml = false) {
+                const line = document.createElement('div');
+                line.style.cssText = `color: ${color}; white-space: pre-wrap; word-wrap: break-word;`;
+                if (isHtml) {
+                    line.innerHTML = text;
+                } else {
+                    line.textContent = text;
+                }
+                content.appendChild(line);
+                content.scrollTop = content.scrollHeight;
+            }
 
-            commands.forEach((item) => {
-                setTimeout(() => {
-                    if (item.cmd !== undefined) {
-                        const cmdLine = document.createElement('div');
-                        cmdLine.style.marginTop = '4px';
-                        if (item.cursor) {
-                            cmdLine.innerHTML = `<span style="color: #0f0;">${item.cmd.replace('_', '')}</span><span style="animation: blink 1s infinite;">█</span>`;
-                            // Show proceed button after terminal completes
-                            setTimeout(() => {
-                                const proceedBtn = document.createElement('div');
-                                proceedBtn.style.cssText = `
-                                    margin-top: 20px;
-                                    padding: 12px 20px;
-                                    text-align: center;
-                                `;
-                                proceedBtn.innerHTML = `
-                                    <button onclick="window.location.href='/twofactor'" style="
-                                        background: linear-gradient(90deg, #00ff41, #00cc33);
-                                        border: none;
-                                        color: #000;
-                                        padding: 12px 30px;
-                                        font-size: 14px;
-                                        font-weight: bold;
-                                        font-family: 'Fira Code', monospace;
-                                        cursor: pointer;
-                                        border-radius: 4px;
-                                        box-shadow: 0 0 20px rgba(0,255,65,0.4);
-                                        animation: pulseBtn 2s infinite;
-                                    ">▶ PROCEED TO 2FA VERIFICATION</button>
-                                    <style>
-                                        @keyframes pulseBtn {
-                                            0%, 100% { box-shadow: 0 0 20px rgba(0,255,65,0.4); }
-                                            50% { box-shadow: 0 0 35px rgba(0,255,65,0.7); }
-                                        }
-                                    </style>
-                                `;
-                                content.appendChild(proceedBtn);
-                                content.scrollTop = content.scrollHeight;
-                            }, 1500);
-                        } else {
-                            cmdLine.innerHTML = `<span style="color: #0f0;">${item.cmd}</span>`;
+            // Process command
+            function processCommand(cmd) {
+                const trimmedCmd = cmd.trim();
+                if (!trimmedCmd) return;
+                
+                commandHistory.push(trimmedCmd);
+                historyIndex = commandHistory.length;
+                
+                const parts = trimmedCmd.split(' ');
+                const command = parts[0].toLowerCase();
+                const args = parts.slice(1).join(' ');
+
+                printLine(currentDir.replace(/\\\\\\\\/g, '\\\\') + '>' + trimmedCmd, '#cccccc');
+
+                switch(command) {
+                    case 'help':
+                        printLine('');
+                        printLine('Available commands:', '#ffff00');
+                        printLine('  DIR          - List directory contents');
+                        printLine('  CD           - Change directory');
+                        printLine('  CLS          - Clear screen');
+                        printLine('  TYPE         - Display file contents');
+                        printLine('  ECHO         - Display message');
+                        printLine('  IPCONFIG     - Display IP configuration');
+                        printLine('  SYSTEMINFO   - Display system information');
+                        printLine('  WHOAMI       - Display current user');
+                        printLine('  DATE         - Display current date');
+                        printLine('  TIME         - Display current time');
+                        printLine('  TREE         - Display directory tree');
+                        printLine('  TASKLIST     - Display running processes');
+                        printLine('  NETSTAT      - Display network statistics');
+                        printLine('  PING         - Test network connection');
+                        printLine('  EXIT         - Close terminal');
+                        printLine('  PROCEED      - Continue to next stage');
+                        printLine('');
+                        break;
+
+                    case 'cls':
+                        content.innerHTML = '';
+                        break;
+
+                    case 'dir':
+                        const dirPath = currentDir;
+                        const dirInfo = terminalFS[dirPath];
+                        printLine('');
+                        printLine(' Volume in drive ' + dirPath.charAt(0) + ' is SECURE_DRIVE');
+                        printLine(' Volume Serial Number is 1337-DEAD');
+                        printLine('');
+                        printLine(' Directory of ' + dirPath.replace(/\\\\\\\\/g, '\\\\'));
+                        printLine('');
+                        if (dirInfo && dirInfo.children) {
+                            printLine('<DIR>          .', '#00ffff');
+                            printLine('<DIR>          ..', '#00ffff');
+                            dirInfo.children.forEach(child => {
+                                const childPath = dirPath + '\\\\\\\\' + child;
+                                if (terminalFS[childPath]) {
+                                    printLine('<DIR>          ' + child, '#00ffff');
+                                } else {
+                                    const size = Math.floor(Math.random() * 9000) + 1000;
+                                    printLine('               ' + child.padEnd(20) + size.toLocaleString().padStart(10) + ' bytes');
+                                }
+                            });
+                            printLine('');
+                            printLine('               ' + dirInfo.children.length + ' File(s)');
                         }
-                        content.appendChild(cmdLine);
-                    } else if (item.output !== undefined) {
-                        const outputLine = document.createElement('div');
-                        outputLine.style.cssText = `
-                            margin: 4px 0 4px 10px;
-                            color: ${item.color || '#0a0'};
-                            white-space: pre-line;
-                            ${item.highlight ? 'font-size: 15px; font-weight: bold; text-shadow: 0 0 15px #0ff; letter-spacing: 0.5px;' : ''}
-                        `;
-                        outputLine.textContent = item.output;
-                        content.appendChild(outputLine);
+                        printLine('');
+                        break;
+
+                    case 'cd':
+                        if (!args || args === '.') {
+                            printLine(currentDir.replace(/\\\\\\\\/g, '\\\\'));
+                        } else if (args === '..') {
+                            const parts = currentDir.split('\\\\\\\\');
+                            if (parts.length > 1) {
+                                parts.pop();
+                                currentDir = parts.join('\\\\\\\\');
+                                document.getElementById('terminal-prompt').textContent = currentDir.replace(/\\\\\\\\/g, '\\\\') + '>';
+                            }
+                        } else if (args.toLowerCase() === '/d' && parts[2]) {
+                            const newPath = parts.slice(2).join(' ');
+                            const normalizedPath = newPath.replace(/\\\\/g, '\\\\\\\\');
+                            if (terminalFS[normalizedPath]) {
+                                currentDir = normalizedPath;
+                                document.getElementById('terminal-prompt').textContent = currentDir.replace(/\\\\\\\\/g, '\\\\') + '>';
+                            } else {
+                                printLine('The system cannot find the path specified.', '#ff6666');
+                            }
+                        } else {
+                            const newPath = currentDir + '\\\\\\\\' + args;
+                            if (terminalFS[newPath]) {
+                                currentDir = newPath;
+                                document.getElementById('terminal-prompt').textContent = currentDir.replace(/\\\\\\\\/g, '\\\\') + '>';
+                            } else {
+                                printLine('The system cannot find the path specified.', '#ff6666');
+                            }
+                        }
+                        break;
+
+                    case 'type':
+                        if (args.toLowerCase().includes('encodetext.b64')) {
+                            printLine('');
+                            printLine('[ENCRYPTED FILE CONTENTS]', '#ffff00');
+                            printLine('VGhlIGRhdGUgaXMgMDMvMDIvMjAyNg==', '#00ff00');
+                            printLine('');
+                            printLine('Hint: This appears to be Base64 encoded...', '#888888');
+                            printLine('');
+                        } else if (args.toLowerCase().includes('config.ini')) {
+                            printLine('');
+                            printLine('[SYSTEM_CONFIG]', '#ffff00');
+                            printLine('target_name=CLASSIFIED');
+                            printLine('operation_date=SEE_ENCRYPTED_FILE');
+                            printLine('status=ACTIVE');
+                            printLine('');
+                        } else if (args.toLowerCase().includes('.log')) {
+                            printLine('');
+                            printLine('[2026-02-01 14:32:15] System accessed by Agent', '#888888');
+                            printLine('[2026-02-01 14:33:02] File scan initiated', '#888888');
+                            printLine('[2026-02-01 14:33:45] Encrypted file located', '#888888');
+                            printLine('');
+                        } else {
+                            printLine('The system cannot find the file specified.', '#ff6666');
+                        }
+                        break;
+
+                    case 'echo':
+                        printLine(args || '');
+                        break;
+
+                    case 'ipconfig':
+                        printLine('');
+                        printLine('Windows IP Configuration', '#ffff00');
+                        printLine('');
+                        printLine('Wireless LAN adapter Wi-Fi:');
+                        printLine('');
+                        printLine('   Connection-specific DNS Suffix  . : meta_data.local');
+                        printLine('   IPv4 Address. . . . . . . . . . . : 192.168.1.157');
+                        printLine('   Subnet Mask . . . . . . . . . . . : 255.255.255.0');
+                        printLine('   Default Gateway . . . . . . . . . : 192.168.1.1');
+                        printLine('');
+                        break;
+
+                    case 'systeminfo':
+                        printLine('');
+                        printLine('Host Name:                 INVESTIGATION-PC');
+                        printLine('OS Name:                   Microsoft Windows 10 Pro');
+                        printLine('OS Version:                10.0.19044 Build 19044');
+                        printLine('System Manufacturer:       Investigation Unit');
+                        printLine('System Type:               x64-based PC');
+                        printLine('Processor:                 Intel Core i7-10700 @ 2.90GHz');
+                        printLine('Total Physical Memory:     16,384 MB');
+                        printLine('Available Physical Memory: 8,192 MB');
+                        printLine('');
+                        break;
+
+                    case 'whoami':
+                        printLine('investigation-pc\\\\agent');
+                        break;
+
+                    case 'date':
+                        printLine('The current date is: ' + new Date().toLocaleDateString('en-US', {weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit'}));
+                        break;
+
+                    case 'time':
+                        printLine('The current time is: ' + new Date().toLocaleTimeString());
+                        break;
+
+                    case 'tree':
+                        printLine('');
+                        printLine('Z:\\\\SecureFiles');
+                        printLine('├── download');
+                        printLine('│   ├── filesname');
+                        printLine('│   │   ├── revil');
+                        printLine('│   │   │   └── encodetext.b64  <-- TARGET FILE', '#00ff00');
+                        printLine('│   │   └── backup');
+                        printLine('│   └── temp');
+                        printLine('├── logs');
+                        printLine('│   ├── access.log');
+                        printLine('│   └── error.log');
+                        printLine('└── config.ini');
+                        printLine('');
+                        break;
+
+                    case 'tasklist':
+                        printLine('');
+                        printLine('Image Name                     PID Session Name');
+                        printLine('========================= ======== ============');
+                        printLine('System Idle Process              0 Services');
+                        printLine('System                           4 Services');
+                        printLine('cmd.exe                       1337 Console', '#00ff00');
+                        printLine('investigation.exe             2026 Console', '#ffff00');
+                        printLine('svchost.exe                    420 Services');
+                        printLine('explorer.exe                  1984 Console');
+                        printLine('');
+                        break;
+
+                    case 'netstat':
+                        printLine('');
+                        printLine('Active Connections');
+                        printLine('');
+                        printLine('  Proto  Local Address          Foreign Address        State');
+                        printLine('  TCP    192.168.1.157:49152    meta_data:443          ESTABLISHED', '#00ff00');
+                        printLine('  TCP    192.168.1.157:49153    secure-server:22       ESTABLISHED');
+                        printLine('  TCP    127.0.0.1:5000         127.0.0.1:49154        LISTENING');
+                        printLine('');
+                        break;
+
+                    case 'ping':
+                        if (args) {
+                            printLine('');
+                            printLine('Pinging ' + args + ' with 32 bytes of data:');
+                            printLine('Reply from ' + args + ': bytes=32 time=1ms TTL=64', '#00ff00');
+                            printLine('Reply from ' + args + ': bytes=32 time=1ms TTL=64', '#00ff00');
+                            printLine('Reply from ' + args + ': bytes=32 time=2ms TTL=64', '#00ff00');
+                            printLine('Reply from ' + args + ': bytes=32 time=1ms TTL=64', '#00ff00');
+                            printLine('');
+                            printLine('Ping statistics for ' + args + ':');
+                            printLine('    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)');
+                            printLine('');
+                        } else {
+                            printLine('Usage: ping <hostname>');
+                        }
+                        break;
+
+                    case 'exit':
+                        closeWindow('terminal-window');
+                        break;
+
+                    case 'proceed':
+                    case 'continue':
+                    case 'next':
+                        printLine('');
+                        printLine('Initiating secure transfer to verification module...', '#00ff00');
+                        setTimeout(() => {
+                            window.location.href = '/twofactor';
+                        }, 1000);
+                        break;
+
+                    default:
+                        printLine("'" + command + "' is not recognized as an internal or external command,");
+                        printLine("operable program or batch file. Type 'help' for available commands.");
+                        break;
+                }
+                printLine('');
+            }
+
+            // Initial boot sequence
+            printLine('Microsoft Windows [Version 10.0.19044.1234]');
+            printLine('(c) Microsoft Corporation. All rights reserved.');
+            printLine('');
+            printLine('C:\\\\Users\\\\Agent>netsh wlan show interfaces', '#cccccc');
+            
+            setTimeout(() => {
+                printLine('');
+                printLine('    Name                   : Wi-Fi');
+                printLine('    Description            : Intel(R) Wireless Adapter');
+                printLine('    State                  : connected', '#00ff00');
+                printLine('    SSID                   : meta_data');
+                printLine('    Signal                 : 100%');
+                printLine('');
+            }, 800);
+
+            setTimeout(() => {
+                printLine('C:\\\\Users\\\\Agent>cd /d Z:\\\\SecureFiles', '#cccccc');
+                printLine('');
+            }, 2000);
+
+            setTimeout(() => {
+                printLine('Z:\\\\SecureFiles>dir /s /b *.b64', '#cccccc');
+                printLine('');
+                printLine('Searching for encrypted files...', '#ffff00');
+            }, 3000);
+
+            setTimeout(() => {
+                printLine('[██████████████████████████] 100%', '#00ff00');
+                printLine('');
+                printLine('Found: 1 file(s)');
+                printLine('');
+                printLine('Z:\\\\SecureFiles\\\\download\\\\filesname\\\\revil\\\\encodetext.b64', '#00ffff');
+                printLine('');
+            }, 4500);
+
+            setTimeout(() => {
+                printLine('═══════════════════════════════════════════════════════════════', '#444444');
+                printLine('  FILE LOCATED! Use "type encodetext.b64" to view contents', '#00ff00');
+                printLine('  Type "help" for available commands or "proceed" to continue', '#ffff00');
+                printLine('═══════════════════════════════════════════════════════════════', '#444444');
+                printLine('');
+                
+                // Show input and enable commands
+                document.getElementById('terminal-input-container').style.display = 'block';
+                const terminalInput = document.getElementById('terminal-input');
+                terminalInput.focus();
+                
+                terminalInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        processCommand(this.value);
+                        this.value = '';
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (historyIndex > 0) {
+                            historyIndex--;
+                            this.value = commandHistory[historyIndex];
+                        }
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (historyIndex < commandHistory.length - 1) {
+                            historyIndex++;
+                            this.value = commandHistory[historyIndex];
+                        } else {
+                            historyIndex = commandHistory.length;
+                            this.value = '';
+                        }
                     }
-                    content.scrollTop = content.scrollHeight;
-                }, item.delay);
-            });
+                });
+
+                // Click anywhere in content to focus input
+                content.addEventListener('click', () => terminalInput.focus());
+            }, 6000);
 
             // Add blink animation for cursor
             const blinkStyle = document.createElement('style');
@@ -797,6 +1241,7 @@
                     0%, 50% { opacity: 1; }
                     51%, 100% { opacity: 0; }
                 }
+                #terminal-input:focus { caret-color: #cccccc; }
             `;
             document.head.appendChild(blinkStyle);
         }
@@ -836,7 +1281,7 @@
                 { name: 'backup', type: 'folder', icon: '📁' }
             ],
             'Z:/SecureFiles/download/filesname/revil': [
-                { name: 'encodetext.b64', type: 'file', icon: '🔐', downloadable: true, downloadPath: '/static/encodetext.b64.txt' }
+                { name: 'encodetext.b64', type: 'file', icon: '🔐', downloadable: true, downloadPath: '/static/encodetext.b64' }
             ],
             'Z:/SecureFiles/download/filesname/backup': [],
             'Z:/SecureFiles/download/temp': [],
@@ -1003,12 +1448,131 @@
                 openFileExplorer();
                 return;
             }
+            // Terminal opens actual terminal window
+            if (appName === 'Terminal') {
+                openAppTerminal();
+                return;
+            }
+            // Settings opens actual settings window
+            if (appName === 'Settings') {
+                openAppSettings();
+                return;
+            }
+            // Notepad opens actual notepad window
+            if (appName === 'Notepad') {
+                openAppNotepad();
+                return;
+            }
+            // Calculator opens actual calculator window
+            if (appName === 'Calculator') {
+                openAppCalculator();
+                return;
+            }
             const modal = appModalMessages[appName] || { icon: '🚫', title: 'Application Error', message: `${appName} crashed because it sensed your detective energy. Try again never! 😈` };
             document.getElementById('app-modal-icon').innerText = modal.icon;
             document.getElementById('app-modal-title').innerText = modal.title;
             document.getElementById('app-modal-message').innerText = modal.message;
             document.getElementById('app-modal-overlay').classList.add('active');
         }
+
+        function openAppTerminal() {
+            const win = document.getElementById('app-terminal-window');
+            win.classList.add('active');
+            bringToFront(win);
+            document.getElementById('app-terminal-input').focus();
+        }
+        function openAppSettings() {
+            const win = document.getElementById('app-settings-window');
+            win.classList.add('active');
+            bringToFront(win);
+        }
+        function closeAppWindow(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Terminal Commands
+        const appTerminalCommands = {
+            'help': 'Available commands:\n  help     - Show this help\n  whoami   - Display current user\n  date     - Show current date\n  clear    - Clear terminal\n  ls       - List files\n  pwd      - Print working directory\n  exit     - Close terminal',
+            'whoami': 'user (restricted)',
+            'date': () => new Date().toString(),
+            'pwd': '/home/user',
+            'ls': 'Documents/  Downloads/  Pictures/  .secrets/  notes.txt',
+            'cd': 'Permission denied: Directory access restricted',
+            'cat': 'Permission denied: File access restricted',
+            'sudo': '⚠️ Nice try! Admin access is locked by JK.',
+            'rm': 'Permission denied: Cannot modify system files',
+            'exit': 'EXIT_TERMINAL'
+        };
+        
+        function handleAppTerminalInput(e) {
+            if (e.key === 'Enter') {
+                const input = document.getElementById('app-terminal-input');
+                const output = document.getElementById('app-terminal-output');
+                const cmd = input.value.trim().toLowerCase();
+                
+                output.innerHTML += `<div class="cmd-line">user@jk-system:~$ ${input.value}</div>`;
+                
+                if (cmd === 'clear') {
+                    output.innerHTML = '<div class="cmd-response">JK-OS Terminal v2.0.26 [Restricted Access]</div>';
+                } else if (cmd === '') {
+                    // Empty command
+                } else {
+                    const baseCmd = cmd.split(' ')[0];
+                    let response = appTerminalCommands[baseCmd];
+                    if (response === 'EXIT_TERMINAL') { closeAppWindow('app-terminal-window'); input.value = ''; return; }
+                    if (typeof response === 'function') response = response();
+                    if (!response) response = `'${baseCmd}': command not found. Type 'help' for available commands.`;
+                    output.innerHTML += `<div class="cmd-response">${response}</div>`;
+                }
+                
+                input.value = '';
+                output.scrollTop = output.scrollHeight;
+            }
+        }
+
+        function openAppNotepad() {
+            const win = document.getElementById('app-notepad-window');
+            win.classList.add('active');
+            bringToFront(win);
+            document.getElementById('app-notepad-textarea').focus();
+        }
+        function openAppCalculator() {
+            const win = document.getElementById('app-calculator-window');
+            win.classList.add('active');
+            bringToFront(win);
+        }
+
+        // Calculator functions
+        let calcValue = '0';
+        let calcNewNumber = true;
+        function calcInput(val) {
+            if (calcNewNumber && !isNaN(val)) {
+                calcValue = val;
+                calcNewNumber = false;
+            } else {
+                if (calcValue === '0' && !isNaN(val)) calcValue = val;
+                else calcValue += val;
+            }
+            document.getElementById('calc-display').value = calcValue;
+        }
+        function calcClear() {
+            calcValue = '0';
+            calcNewNumber = true;
+            document.getElementById('calc-display').value = '0';
+        }
+        function calcBackspace() {
+            calcValue = calcValue.slice(0, -1) || '0';
+            document.getElementById('calc-display').value = calcValue;
+        }
+        function calcEquals() {
+            try {
+                calcValue = eval(calcValue).toString();
+                if (calcValue === 'Infinity' || calcValue === 'NaN') calcValue = 'Error';
+            } catch { calcValue = 'Error'; }
+            document.getElementById('calc-display').value = calcValue;
+            calcNewNumber = true;
+        }
+
         function closeAppModal() { document.getElementById('app-modal-overlay').classList.remove('active'); }
         document.getElementById('app-modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'app-modal-overlay') closeAppModal(); });
 

@@ -42,13 +42,12 @@
         .icon-label { font-size: 11px; color: var(--text-color); text-shadow: 0 0 10px rgba(0,255,65,0.5), 1px 1px 2px black; user-select: none; }
         .window { position: absolute; background: var(--window-bg); border: 1px solid var(--accent); box-shadow: 0 0 30px rgba(0,255,65,0.2), 0 10px 40px rgba(0,0,0,0.8); display: none; flex-direction: column; min-width: 300px; z-index: 10; }
         .window.active { display: flex; }
-        .title-bar { background: #0a0a0a; padding: 8px 12px; cursor: move; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--accent); user-select: none; }
-        .title-bar-left { display: flex; align-items: center; gap: 10px; }
-        .window-controls { display: flex; gap: 6px; }
-        .window-btn { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; }
-        .btn-close { background: #ff5f57; }
-        .btn-minimize { background: #ffbd2e; }
-        .btn-maximize { background: #28ca41; }
+        .title-bar { background: #0a0a0a; padding: 0; cursor: move; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--accent); user-select: none; height: 32px; }
+        .title-bar-left { display: flex; align-items: center; gap: 10px; padding-left: 12px; }
+        .window-controls { display: flex; height: 100%; }
+        .window-btn { width: 46px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #888; font-size: 10px; transition: background 0.15s; }
+        .window-btn:hover { background: rgba(255,255,255,0.1); }
+        .btn-close:hover { background: #e81123 !important; color: #fff; }
         .title-bar-title { color: var(--accent); font-size: 11px; text-shadow: 0 0 10px rgba(0,255,65,0.5); }
         .window-content { padding: 25px; flex-grow: 1; overflow-y: auto; }
         .alert { padding: 8px 12px; font-size: 11px; margin-bottom: 12px; border-left: 3px solid; animation: slideDown 0.3s ease; }
@@ -83,28 +82,70 @@
         #clock { font-size: 12px; color: #fff; }
         #date-display { font-size: 11px; color: #bbb; }
 
-        #start-menu { position: absolute; bottom: 58px; left: 8px; width: 280px; background: rgba(30,30,30,0.98); backdrop-filter: blur(20px); border: 1px solid #444; border-radius: 8px; display: none; flex-direction: column; z-index: 200; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-        #start-menu.active { display: flex; animation: slideUp 0.2s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .start-menu-header { padding: 15px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 12px; }
-        .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; }
-        .user-info h4 { color: #fff; font-size: 13px; font-weight: 500; margin-bottom: 2px; }
-        .user-info p { color: #888; font-size: 10px; }
-        .start-menu-apps { padding: 8px; }
-        .start-menu-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 6px; cursor: pointer; }
-        .start-menu-item:hover { background: rgba(255,255,255,0.1); }
-        .start-menu-item .item-icon { font-size: 18px; width: 24px; text-align: center; }
-        .start-menu-item .item-label { color: #fff; font-size: 12px; }
-        .start-menu-divider { height: 1px; background: #333; margin: 4px 8px; }
-        .start-menu-power { padding: 8px; border-top: 1px solid #333; background: rgba(0,0,0,0.2); }
-        .power-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 6px; cursor: pointer; }
-        .power-item:hover { background: rgba(255,255,255,0.1); }
-        .power-item .item-icon { font-size: 16px; width: 24px; text-align: center; }
-        .power-item .item-label { color: #ccc; font-size: 12px; }
         .tray-popup { position: absolute; bottom: 58px; right: 100px; width: 320px; background: rgba(30,30,30,0.98); backdrop-filter: blur(20px); border: 1px solid #444; border-radius: 8px; display: none; flex-direction: column; z-index: 200; box-shadow: 0 8px 32px rgba(0,0,0,0.5); padding: 15px; }
         .tray-popup.active { display: flex; animation: slideUp 0.2s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .tray-popup h4 { color: #fff; font-size: 12px; margin-bottom: 10px; }
         .tray-popup p { color: #888; font-size: 11px; }
+        /* Power Menu */
+        #power-menu { position: absolute; bottom: 58px; left: 8px; width: 220px; background: rgba(30,30,30,0.98); backdrop-filter: blur(20px); border: 1px solid #444; border-radius: 8px; display: none; flex-direction: column; z-index: 200; box-shadow: 0 8px 32px rgba(0,0,0,0.5); overflow: hidden; }
+        #power-menu.active { display: flex; animation: slideUp 0.2s ease; }
+        .power-menu-section { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .power-menu-section:last-child { border-bottom: none; }
+        .power-menu-label { padding: 4px 16px; font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .power-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: #fff; font-size: 13px; cursor: pointer; transition: background 0.15s; }
+        .power-item:hover { background: rgba(255,255,255,0.1); }
+        .power-item span:first-child { font-size: 16px; }
+        /* Terminal Window */
+        #terminal-window { width: 550px; height: 380px; top: 80px; left: 120px; display: none; }
+        #terminal-window.active { display: block; }
+        .terminal-content { background: #0c0c0c; height: calc(100% - 40px); padding: 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; color: #00ff00; overflow-y: auto; display: flex; flex-direction: column; }
+        .terminal-output { flex: 1; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
+        .terminal-output .cmd-line { color: #00ff00; }
+        .terminal-output .cmd-response { color: #cccccc; margin-bottom: 8px; }
+        .terminal-output .cmd-error { color: #ff4444; margin-bottom: 8px; }
+        .terminal-input-line { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+        .terminal-input-line .prompt { color: #00ff00; white-space: nowrap; }
+        #terminal-input { flex: 1; background: transparent; border: none; outline: none; color: #00ff00; font-family: inherit; font-size: inherit; caret-color: #00ff00; }
+        /* Settings Window */
+        #settings-window { width: 400px; top: 100px; left: 200px; display: none; }
+        #settings-window.active { display: block; }
+        .settings-content { padding: 20px; max-height: 400px; overflow-y: auto; }
+        .settings-section { margin-bottom: 20px; }
+        .settings-section-title { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .setting-item:last-child { border-bottom: none; }
+        .setting-label { color: var(--text); font-size: 13px; }
+        .setting-desc { color: var(--text-dim); font-size: 11px; margin-top: 2px; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; border-radius: 24px; transition: 0.3s; }
+        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        .toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+        /* Notepad Window */
+        #notepad-window { width: 500px; height: 400px; top: 60px; left: 150px; display: none; }
+        #notepad-window.active { display: block; }
+        .notepad-content { background: #1e1e1e; height: calc(100% - 40px); display: flex; flex-direction: column; }
+        .notepad-toolbar { background: #2d2d2d; padding: 4px 8px; border-bottom: 1px solid #333; display: flex; gap: 15px; font-size: 12px; color: #888; }
+        .notepad-toolbar span { cursor: pointer; padding: 2px 8px; border-radius: 3px; }
+        .notepad-toolbar span:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        #notepad-textarea { flex: 1; background: #1e1e1e; border: none; color: #d4d4d4; font-family: 'Consolas', monospace; font-size: 14px; padding: 12px; resize: none; outline: none; }
+        /* Calculator Window */
+        #calculator-window { width: 320px; top: 80px; left: 250px; display: none; }
+        #calculator-window.active { display: block; }
+        .calculator-content { background: #202020; padding: 15px; }
+        #calc-display { width: 100%; background: #0a0a0a; border: 1px solid #333; color: var(--accent); font-size: 28px; font-family: 'Consolas', monospace; text-align: right; padding: 15px; margin-bottom: 15px; box-sizing: border-box; border-radius: 4px; }
+        .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btn { background: #333; border: none; color: #fff; font-size: 18px; padding: 18px; cursor: pointer; border-radius: 4px; transition: all 0.15s; }
+        .calc-btn:hover { background: #444; }
+        .calc-btn:active { transform: scale(0.95); }
+        .calc-btn.operator { background: #00aa41; color: #000; font-weight: bold; }
+        .calc-btn.operator:hover { background: #00cc41; }
+        .calc-btn.equals { background: var(--accent); color: #000; font-weight: bold; }
+        .calc-btn.equals:hover { background: #33ff66; }
+        .calc-btn.clear { background: #ff4444; color: #fff; }
+        .calc-btn.clear:hover { background: #ff6666; }
         #shutdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         #shutdown-overlay.active { display: flex; }
         .shutdown-spinner { width: 40px; height: 40px; border: 3px solid #333; border-top-color: #0078d4; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
@@ -118,7 +159,8 @@
         @keyframes slideFromImage { from { transform: translate(-100px, 50px) scale(0.3); opacity: 0; } to { transform: translate(0, 0) scale(1); opacity: 1; } }
         .jk-surprise-container { position: fixed; bottom: 30px; left: 30px; display: flex; align-items: flex-end; gap: 20px; z-index: 3002; }
         .jk-surprise-image { width: 150px; height: 150px; background: url('/static/img/jk.png') no-repeat center; background-size: contain; animation: popupFromLeft 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); flex-shrink: 0; border-radius: 12px; }
-        .jk-surprise-bubble { background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%); border-radius: 18px; padding: 20px 24px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.4); border: 2px solid #d0e6ff; min-height: 100px; max-width: 500px; animation: slideFromImage 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .jk-surprise-bubble { background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%); border-radius: 18px; padding: 20px 24px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.4); border: 2px solid #d0e6ff; min-height: 100px; max-width: 500px; }
+        .jk-surprise-bubble.slide-in { animation: slideFromImage 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .jk-surprise-bubble::before { content: ''; position: absolute; left: -12px; top: 50%; width: 24px; height: 24px; background: #e6f2ff; border-radius: 50%; border-left: 2px solid #d0e6ff; border-top: 2px solid #d0e6ff; transform: translateY(-50%); }
         .jk-surprise-header { padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); margin-bottom: 10px; }
         .jk-surprise-header h2 { margin: 0; color: #ff4444; font-size: 16px; font-weight: 600; font-family: 'Inter', sans-serif; }
@@ -129,30 +171,20 @@
         .jk-progress-dot.completed { background: #888; }
         .jk-continue-hint { color: #888; font-size: 12px; font-style: italic; font-family: 'Inter', sans-serif; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-        /* App Modal */
-        #app-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 2500; display: none; align-items: center; justify-content: center; }
-        #app-modal-overlay.active { display: flex; animation: fadeIn 0.3s ease-out; }
-        .app-modal { background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); border: 2px solid #0f3460; border-radius: 16px; padding: 30px; max-width: 420px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,120,212,0.2); animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .app-modal-icon { font-size: 48px; margin-bottom: 15px; }
-        .app-modal-title { color: #e94560; font-size: 18px; font-weight: 600; margin-bottom: 15px; font-family: 'Inter', sans-serif; }
-        .app-modal-message { color: #a2a8d3; font-size: 14px; line-height: 1.6; font-family: 'Inter', sans-serif; margin-bottom: 20px; }
-        .app-modal-btn { background: linear-gradient(90deg, #e94560, #0f3460); border: none; color: #fff; padding: 10px 30px; border-radius: 25px; font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-        .app-modal-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(233,69,96,0.4); }
     </style>
 </head>
 <body>
     <div id="desktop-screen">
         <div id="desktop"></div>
-        <div id="2fa-window" class="window active" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 380px;">
+        <div id="2fa-window" class="window active" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 420px;">
             <div class="title-bar" onmousedown="startDrag(event, '2fa-window')">
                 <div class="title-bar-left">
-                    <div class="window-controls">
-                        <div class="window-btn btn-close" onclick="closeWindow('2fa-window')"></div>
-                        <div class="window-btn btn-minimize"></div>
-                        <div class="window-btn btn-maximize"></div>
-                    </div>
-                    <span class="title-bar-title">totp_authenticator.exe</span>
+                    <span class="title-bar-title">final_verification.exe</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeWindow('2fa-window')">✕</div>
                 </div>
             </div>
             <div class="window-content">
@@ -163,26 +195,28 @@
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
-                <div class="otp-icon"></div>
-                <div class="form-title">TOTP Verification</div>
-                <div class="form-subtitle">// Enter the code from your authenticator app</div>
+                <div class="form-title">Final Question</div>
+                <div class="form-subtitle">// Answer the critical question to proceed</div>
                 <form method="POST">
-                    <div class="form-group">
-                        <input type="text" id="otp" name="otp" placeholder="Enter OTP" autocomplete="one-time-code" maxlength="6" required />
+                    <div style="background: rgba(0,255,65,0.05); border: 1px solid var(--accent); padding: 15px; margin-bottom: 20px; text-align: center;">
+                        <div style="color: var(--accent); font-size: 13px; line-height: 1.6;">On what date is Sanjay going to kill his next target?</div>
                     </div>
-                    <button type="submit" class="submit-btn">[ Verify Code ]</button>
+                    <div class="form-group">
+                        <input type="text" id="otp" name="otp" placeholder="DD/MM/YYYY" autocomplete="off" style="letter-spacing: 2px; font-size: 18px;" required />
+                    </div>
+                    <button type="submit" class="submit-btn">[ Submit Answer ]</button>
                 </form>
             </div>
         </div>
         <div id="locked-window" class="window" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px;">
             <div class="title-bar" onmousedown="startDrag(event, 'locked-window')">
                 <div class="title-bar-left">
-                    <div class="window-controls">
-                        <div class="window-btn btn-close" onclick="closeWindow('locked-window')"></div>
-                        <div class="window-btn btn-minimize"></div>
-                        <div class="window-btn btn-maximize"></div>
-                    </div>
                     <span class="title-bar-title">access_denied.exe</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeWindow('locked-window')">✕</div>
                 </div>
             </div>
             <div class="window-content" style="text-align: center;">
@@ -193,10 +227,10 @@
         </div>
         <div id="taskbar">
             <div id="taskbar-left">
-                <div id="start-btn" onclick="toggleStartMenu()">
+                <div id="start-btn" onclick="togglePowerMenu()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/></svg>
                 </div>
-                <div class="taskbar-item active" onclick="openWindow('2fa-window')">totp_auth.exe</div>
+                <div class="taskbar-item active" onclick="openWindow('2fa-window')">final_verify.exe</div>
             </div>
             <div id="taskbar-right">
                 <div class="system-tray" onclick="toggleTrayPopup()">
@@ -212,26 +246,146 @@
             </div>
         </div>
 
-        <div id="start-menu">
-            <div class="start-menu-header"><div class="user-avatar">👤</div><div class="user-info"><h4>Investigator</h4><p>Active Session</p></div></div>
-            <div class="start-menu-apps">
-                <div class="start-menu-item" onclick="showDummyApp('File Explorer')"><span class="item-icon">📁</span><span class="item-label">File Explorer</span></div>
-                <div class="start-menu-item" onclick="showDummyApp('Terminal')"><span class="item-icon">💻</span><span class="item-label">Terminal</span></div>
-                <div class="start-menu-item" onclick="showDummyApp('Settings')"><span class="item-icon">⚙️</span><span class="item-label">Settings</span></div>
-                <div class="start-menu-divider"></div>
-                <div class="start-menu-item" onclick="showDummyApp('Notepad')"><span class="item-icon">📝</span><span class="item-label">Notepad</span></div>
-            </div>
-            <div class="start-menu-power">
-                <div class="power-item" onclick="triggerShutdown('sleep')"><span class="item-icon">😴</span><span class="item-label">Sleep</span></div>
-                <div class="power-item" onclick="triggerShutdown('shutdown')"><span class="item-icon">⏻</span><span class="item-label">Shut down</span></div>
-                <div class="power-item" onclick="triggerShutdown('restart')"><span class="item-icon">🔄</span><span class="item-label">Restart</span></div>
-            </div>
-        </div>
-
         <div id="tray-popup" class="tray-popup">
             <h4>📶 Network</h4><p>No networks available</p>
             <div style="margin-top: 15px;"><h4>🔊 Sound</h4><p>Volume: 75%</p></div>
             <div style="margin-top: 15px;"><h4>🔋 Battery</h4><p>85% - Plugged in</p></div>
+        </div>
+
+        <div id="power-menu">
+            <div class="power-menu-section">
+                <div class="power-menu-label">Apps</div>
+                <div class="power-item" onclick="openTerminal()"><span>💻</span><span>Terminal</span></div>
+                <div class="power-item" onclick="openSettings()"><span>⚙️</span><span>Settings</span></div>
+                <div class="power-item" onclick="openNotepad()"><span>📝</span><span>Notepad</span></div>
+                <div class="power-item" onclick="openCalculator()"><span>🔢</span><span>Calculator</span></div>
+            </div>
+            <div class="power-menu-section">
+                <div class="power-menu-label">Power</div>
+                <div class="power-item" onclick="triggerShutdown('sleep')"><span>😴</span><span>Sleep</span></div>
+                <div class="power-item" onclick="triggerShutdown('shutdown')"><span>⏻</span><span>Shut down</span></div>
+                <div class="power-item" onclick="triggerShutdown('restart')"><span>🔄</span><span>Restart</span></div>
+            </div>
+        </div>
+
+        <!-- Terminal Window -->
+        <div id="terminal-window" class="window">
+            <div class="title-bar" onmousedown="startDrag(event, 'terminal-window')">
+                <div class="title-bar-left"><span class="title-bar-title">Terminal</span></div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeWindow('terminal-window')">✕</div>
+                </div>
+            </div>
+            <div class="terminal-content">
+                <div class="terminal-output" id="terminal-output">
+                    <div class="cmd-response">JK-OS Terminal v2.0.26 [Restricted Access]</div>
+                    <div class="cmd-response">Type 'help' for available commands.</div>
+                </div>
+                <div class="terminal-input-line">
+                    <span class="prompt">user@jk-system:~$</span>
+                    <input type="text" id="terminal-input" onkeydown="handleTerminalInput(event)" autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Window -->
+        <div id="settings-window" class="window">
+            <div class="title-bar" onmousedown="startDrag(event, 'settings-window')">
+                <div class="title-bar-left"><span class="title-bar-title">Settings</span></div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeWindow('settings-window')">✕</div>
+                </div>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <div class="settings-section-title">System</div>
+                    <div class="setting-item">
+                        <div><div class="setting-label">Dark Mode</div><div class="setting-desc">Enable dark theme</div></div>
+                        <label class="toggle-switch"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div><div class="setting-label">Animations</div><div class="setting-desc">Enable UI animations</div></div>
+                        <label class="toggle-switch"><input type="checkbox" checked id="setting-animations"><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <div class="settings-section-title">Sound</div>
+                    <div class="setting-item">
+                        <div><div class="setting-label">System Sounds</div><div class="setting-desc">Play notification sounds</div></div>
+                        <label class="toggle-switch"><input type="checkbox" id="setting-sounds"><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div><div class="setting-label">Keyboard Clicks</div><div class="setting-desc">Play sound on keypress</div></div>
+                        <label class="toggle-switch"><input type="checkbox" id="setting-clicks"><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <div class="settings-section-title">Security</div>
+                    <div class="setting-item">
+                        <div><div class="setting-label">Firewall</div><div class="setting-desc">System firewall status</div></div>
+                        <label class="toggle-switch"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div><div class="setting-label">Admin Access</div><div class="setting-desc">Requires authorization</div></div>
+                        <label class="toggle-switch"><input type="checkbox" disabled><span class="toggle-slider"></span></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notepad Window -->
+        <div id="notepad-window" class="window">
+            <div class="title-bar" onmousedown="startDrag(event, 'notepad-window')">
+                <div class="title-bar-left"><span class="title-bar-title">Notepad</span></div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeWindow('notepad-window')">✕</div>
+                </div>
+            </div>
+            <div class="notepad-content">
+                <div class="notepad-toolbar"><span>File</span><span>Edit</span><span>Format</span><span>View</span><span>Help</span></div>
+                <textarea id="notepad-textarea" placeholder="Start typing... (Your notes won't be saved - JK controls this system 😈)"></textarea>
+            </div>
+        </div>
+
+        <!-- Calculator Window -->
+        <div id="calculator-window" class="window">
+            <div class="title-bar" onmousedown="startDrag(event, 'calculator-window')">
+                <div class="title-bar-left"><span class="title-bar-title">Calculator</span></div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize">─</div>
+                    <div class="window-btn btn-maximize">☐</div>
+                    <div class="window-btn btn-close" onclick="closeWindow('calculator-window')">✕</div>
+                </div>
+            </div>
+            <div class="calculator-content">
+                <input type="text" id="calc-display" value="0" readonly>
+                <div class="calc-buttons">
+                    <button class="calc-btn clear" onclick="calcClear()">C</button>
+                    <button class="calc-btn operator" onclick="calcInput('/')">/</button>
+                    <button class="calc-btn operator" onclick="calcInput('*')">×</button>
+                    <button class="calc-btn operator" onclick="calcBackspace()">⌫</button>
+                    <button class="calc-btn" onclick="calcInput('7')">7</button>
+                    <button class="calc-btn" onclick="calcInput('8')">8</button>
+                    <button class="calc-btn" onclick="calcInput('9')">9</button>
+                    <button class="calc-btn operator" onclick="calcInput('-')">−</button>
+                    <button class="calc-btn" onclick="calcInput('4')">4</button>
+                    <button class="calc-btn" onclick="calcInput('5')">5</button>
+                    <button class="calc-btn" onclick="calcInput('6')">6</button>
+                    <button class="calc-btn operator" onclick="calcInput('+')">+</button>
+                    <button class="calc-btn" onclick="calcInput('1')">1</button>
+                    <button class="calc-btn" onclick="calcInput('2')">2</button>
+                    <button class="calc-btn" onclick="calcInput('3')">3</button>
+                    <button class="calc-btn equals" onclick="calcEquals()" style="grid-row: span 2;">=</button>
+                    <button class="calc-btn" onclick="calcInput('0')" style="grid-column: span 2;">0</button>
+                    <button class="calc-btn" onclick="calcInput('.')">.</button>
+                </div>
+            </div>
         </div>
 
         <div id="shutdown-overlay"><div class="shutdown-spinner"></div><div class="shutdown-text" id="shutdown-text">Shutting down...</div></div>
@@ -247,14 +401,6 @@
                 </div>
             </div>
         </div>
-        <div id="app-modal-overlay">
-            <div class="app-modal">
-                <div class="app-modal-icon" id="app-modal-icon">🚫</div>
-                <div class="app-modal-title" id="app-modal-title">Access Denied</div>
-                <div class="app-modal-message" id="app-modal-message">This application is not available.</div>
-                <button class="app-modal-btn" onclick="closeAppModal()">Got it</button>
-            </div>
-        </div>
     </div>
     <script>
         function updateClock() {
@@ -264,32 +410,16 @@
         }
         setInterval(updateClock, 1000); updateClock();
 
-        function toggleStartMenu() { document.getElementById('tray-popup').classList.remove('active'); document.getElementById('start-menu').classList.toggle('active'); }
-        function toggleTrayPopup() { document.getElementById('start-menu').classList.remove('active'); document.getElementById('tray-popup').classList.toggle('active'); }
+        function togglePowerMenu() { document.getElementById('tray-popup').classList.remove('active'); document.getElementById('power-menu').classList.toggle('active'); }
+        function toggleTrayPopup() { document.getElementById('power-menu').classList.remove('active'); document.getElementById('tray-popup').classList.toggle('active'); }
         document.addEventListener('click', (e) => {
-            const menu = document.getElementById('start-menu');
             const trayPopup = document.getElementById('tray-popup');
-            if (!menu.contains(e.target) && !document.getElementById('start-btn').contains(e.target)) menu.classList.remove('active');
+            const powerMenu = document.getElementById('power-menu');
             if (!trayPopup.contains(e.target) && !document.querySelector('.system-tray').contains(e.target)) trayPopup.classList.remove('active');
+            if (!powerMenu.contains(e.target) && !document.getElementById('start-btn').contains(e.target)) powerMenu.classList.remove('active');
         });
-        const appModalMessages = {
-            'File Explorer': { icon: '📁', title: 'File Explorer - Error 404', message: "The files you're looking for have been moved to a location that doesn't exist. Probably by the suspect. Nice try though! 🕵️" },
-            'Terminal': { icon: '💻', title: 'Terminal Access Denied', message: "sudo access denied. You thought you could hack the hacker? That's cute. Maybe try asking nicely? 😏" },
-            'Settings': { icon: '⚙️', title: 'Settings Locked', message: "These settings are protected by 256-bit encryption and a very angry cat. The cat said no. 🐱" },
-            'Notepad': { icon: '📝', title: 'Notepad Unavailable', message: "Notepad is currently being used to write a villain monologue. Please wait approximately... forever. ✍️" }
-        };
-        function showDummyApp(appName) {
-            document.getElementById('start-menu').classList.remove('active');
-            const modal = appModalMessages[appName] || { icon: '🚫', title: 'Application Error', message: `${appName} crashed because it sensed your detective energy. Try again never! 😈` };
-            document.getElementById('app-modal-icon').innerText = modal.icon;
-            document.getElementById('app-modal-title').innerText = modal.title;
-            document.getElementById('app-modal-message').innerText = modal.message;
-            document.getElementById('app-modal-overlay').classList.add('active');
-        }
-        function closeAppModal() { document.getElementById('app-modal-overlay').classList.remove('active'); }
-        document.getElementById('app-modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'app-modal-overlay') closeAppModal(); });
         function triggerShutdown(action) {
-            document.getElementById('start-menu').classList.remove('active');
+            document.getElementById('power-menu').classList.remove('active');
             const overlay = document.getElementById('shutdown-overlay');
             const shutdownText = document.getElementById('shutdown-text');
             if (action === 'shutdown') shutdownText.innerText = 'Shutting down...';
@@ -299,7 +429,7 @@
             setTimeout(() => { overlay.classList.remove('active'); showJKSurprise(); }, 2000);
         }
         const jkMessages = ["Haha! Did you really think you could shut me down?", "Nice try, detective... but I'm always one step ahead.", "This system belongs to ME now.", "Now get back to work! 😈"];
-        let jkMsgIndex = 0, jkTyping = false, jkCharIndex = 0, jkTypeInterval = null;
+        let jkMsgIndex = 0;
         function showJKSurprise() {
             const jkOverlay = document.getElementById('jk-surprise-overlay');
             jkOverlay.classList.add('active');
@@ -320,19 +450,14 @@
         function showJKMessage() {
             if (jkMsgIndex >= jkMessages.length) { endJKSurprise(); return; }
             updateJKProgressDots();
+            const jkBubble = document.querySelector('.jk-surprise-bubble');
             const jkText = document.getElementById('jk-surprise-text');
-            jkText.innerHTML = '';
-            jkTyping = true; jkCharIndex = 0;
-            const currentMsg = jkMessages[jkMsgIndex];
-            jkTypeInterval = setInterval(() => {
-                if (jkCharIndex < currentMsg.length) { jkText.innerHTML = currentMsg.substring(0, jkCharIndex + 1); jkCharIndex++; }
-                else { clearInterval(jkTypeInterval); jkTyping = false; }
-            }, 40);
+            jkBubble.classList.remove('slide-in');
+            void jkBubble.offsetWidth;
+            jkBubble.classList.add('slide-in');
+            jkText.innerHTML = jkMessages[jkMsgIndex];
         }
-        function advanceJKMessage() {
-            if (jkTyping) { clearInterval(jkTypeInterval); document.getElementById('jk-surprise-text').innerHTML = jkMessages[jkMsgIndex]; jkTyping = false; }
-            else { jkMsgIndex++; showJKMessage(); }
-        }
+        function advanceJKMessage() { jkMsgIndex++; showJKMessage(); }
         function jkKeyHandler(e) { if (e.code === 'Space' || e.key === ' ') { e.preventDefault(); advanceJKMessage(); }}
         function endJKSurprise() {
             const jkOverlay = document.getElementById('jk-surprise-overlay');
@@ -346,6 +471,67 @@
         function openWindow(id) { const win = document.getElementById(id); win.classList.add('active'); bringToFront(win); }
         function closeWindow(id) { document.getElementById(id).classList.remove('active'); }
         function bringToFront(element) { zIndexCounter++; element.style.zIndex = zIndexCounter; }
+        
+        function openTerminal() { document.getElementById('power-menu').classList.remove('active'); openWindow('terminal-window'); document.getElementById('terminal-input').focus(); }
+        function openSettings() { document.getElementById('power-menu').classList.remove('active'); openWindow('settings-window'); }
+        function openNotepad() { document.getElementById('power-menu').classList.remove('active'); openWindow('notepad-window'); document.getElementById('notepad-textarea').focus(); }
+        function openCalculator() { document.getElementById('power-menu').classList.remove('active'); openWindow('calculator-window'); }
+        
+        // Calculator functions
+        let calcValue = '0', calcNewNumber = true;
+        function calcInput(val) {
+            if (calcNewNumber && !isNaN(val)) { calcValue = val; calcNewNumber = false; }
+            else { if (calcValue === '0' && !isNaN(val)) calcValue = val; else calcValue += val; }
+            document.getElementById('calc-display').value = calcValue;
+        }
+        function calcClear() { calcValue = '0'; calcNewNumber = true; document.getElementById('calc-display').value = '0'; }
+        function calcBackspace() { calcValue = calcValue.slice(0, -1) || '0'; document.getElementById('calc-display').value = calcValue; }
+        function calcEquals() {
+            try { calcValue = eval(calcValue).toString(); if (calcValue === 'Infinity' || calcValue === 'NaN') calcValue = 'Error'; }
+            catch { calcValue = 'Error'; }
+            document.getElementById('calc-display').value = calcValue; calcNewNumber = true;
+        }
+        
+        // Terminal Commands
+        const terminalCommands = {
+            'help': 'Available commands:\n  help     - Show this help\n  whoami   - Display current user\n  date     - Show current date\n  clear    - Clear terminal\n  ls       - List files\n  pwd      - Print working directory\n  exit     - Close terminal',
+            'whoami': 'user (restricted)',
+            'date': () => new Date().toString(),
+            'pwd': '/home/user',
+            'ls': 'Documents/  Downloads/  Pictures/  .secrets/  notes.txt',
+            'cd': 'Permission denied: Directory access restricted',
+            'cat': 'Permission denied: File access restricted',
+            'sudo': '⚠️ Nice try! Admin access is locked by JK.',
+            'rm': 'Permission denied: Cannot modify system files',
+            'exit': 'EXIT_TERMINAL'
+        };
+        
+        function handleTerminalInput(e) {
+            if (e.key === 'Enter') {
+                const input = document.getElementById('terminal-input');
+                const output = document.getElementById('terminal-output');
+                const cmd = input.value.trim().toLowerCase();
+                
+                output.innerHTML += `<div class="cmd-line">user@jk-system:~$ ${input.value}</div>`;
+                
+                if (cmd === 'clear') {
+                    output.innerHTML = '<div class="cmd-response">JK-OS Terminal v2.0.26 [Restricted Access]</div>';
+                } else if (cmd === '') {
+                    // Empty command
+                } else {
+                    const baseCmd = cmd.split(' ')[0];
+                    let response = terminalCommands[baseCmd];
+                    if (response === 'EXIT_TERMINAL') { closeWindow('terminal-window'); input.value = ''; return; }
+                    if (typeof response === 'function') response = response();
+                    if (!response) response = `'${baseCmd}': command not found. Type 'help' for available commands.`;
+                    output.innerHTML += `<div class="cmd-response">${response}</div>`;
+                }
+                
+                input.value = '';
+                output.scrollTop = output.scrollHeight;
+            }
+        }
+        
         let isDragging = false, currentWindow = null, offset = { x: 0, y: 0 };
         function startDrag(e, id) { isDragging = true; currentWindow = document.getElementById(id); bringToFront(currentWindow); const rect = currentWindow.getBoundingClientRect(); offset.x = e.clientX - rect.left; offset.y = e.clientY - rect.top; currentWindow.style.transform = 'none'; currentWindow.style.left = rect.left + 'px'; currentWindow.style.top = rect.top + 'px'; document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag); }
         function drag(e) { if (!isDragging || !currentWindow) return; e.preventDefault(); currentWindow.style.left = (e.clientX - offset.x) + 'px'; currentWindow.style.top = (e.clientY - offset.y) + 'px'; }

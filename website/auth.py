@@ -14,8 +14,8 @@ stopwatch = Stopwatch(2)
 def login_page():
     if request.method == "POST":
         if (
-            request.form.get("username").upper() in ["DEVANANDAN", "DEV ANANDAN"]
-            and request.form.get("password").upper() == "~"
+            request.form.get("username").upper() in ["SANJAY KALPANA", "SANJAYKALPANA"]
+            and request.form.get("password") == "143kalpana"
         ):
             flash(
                 "Suspicious Activity! please answer security questions to continue",
@@ -87,20 +87,46 @@ def last_page():
 def twofactor():
     if request.method == "POST":
         otp = request.form.get("otp")
-        if not otp.isdigit():
-            flash("Enter numbers!", "error")
-            return redirect(url_for("auth.twofactor"))
-        otp = int(otp)
-        if pyotp.TOTP("qZyNdBxMoVcKLWtRHpJmCsFAGUEbhYI").verify(otp):
+        # Accept answer in format DD/MM/YYYY - correct answer is 03/02/2026
+        correct_answer = "03/02/2026"
+        if otp.strip() == correct_answer:
             current_user.isofa = True
             db.session.commit()
+            # Redirect to the final riddle page instead of last_page
+            return redirect(url_for("auth.final_riddle"))
+        else:
+            flash("Wrong answer! Try again.", "error")
+            return redirect(url_for("auth.twofactor"))
+    return render_template("login_2fa.html")
+
+
+@auth.route("/final-riddle", methods=["POST", "GET"])
+@login_required
+def final_riddle():
+    if current_user.isofa == 0:
+        flash("Not authorized", "danger")
+        return redirect(url_for("auth.twofactor"))
+    
+    if request.method == "POST":
+        answer = request.form.get("answer")
+        # Answer: "Volodymyr Zelenskyy"
+        correct_answer = "volodymyr zelenskyy"
+        if answer.strip().lower() == correct_answer:
             current_user.completed = f"{str(stopwatch)}"
             db.session.commit()
-            return redirect(url_for("auth.last_page"))
+            return redirect(url_for("auth.mission_complete"))
         else:
-            flash("You have supplied an invalid OTP!", "error")
-            return redirect(url_for("auth.twofactor"))
-    if current_user.issecurityquestion == 0:
+            flash("Wrong answer! Think harder...", "error")
+            return redirect(url_for("auth.final_riddle"))
+    
+    return render_template("login_final_riddle.html")
+
+
+@auth.route("/mission-complete")
+@login_required
+def mission_complete():
+    # Only accessible if they completed the final riddle
+    if not current_user.completed:
         flash("Not authorized", "danger")
-        return redirect(url_for("auth.security"))
-    return render_template("login_2fa.html")
+        return redirect(url_for("auth.final_riddle"))
+    return render_template("mission_complete.html")
