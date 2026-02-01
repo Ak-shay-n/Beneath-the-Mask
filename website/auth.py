@@ -45,11 +45,11 @@ def security():
             and Hometown.upper() == creds["Hometown"]
             and Food.upper() == creds["Food"]
         ):
-            flash("you have answered the security question correctly", "success")
             current_user.issecurityquestion = True
             current_user.securitytime = f"{str(stopwatch)}"
             db.session.commit()
-            return redirect(url_for("auth.twofactor"))
+            # Show terminal animation before redirecting
+            return render_template("login_security.html", show_terminal=True)
         else:
             if Catname.upper() != creds["Catname"]:
                 wrongans.append("LunarDOB")

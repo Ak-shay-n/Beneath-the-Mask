@@ -179,6 +179,35 @@
         .app-modal-message { color: #a2a8d3; font-size: 14px; line-height: 1.6; font-family: 'Inter', sans-serif; margin-bottom: 20px; }
         .app-modal-btn { background: linear-gradient(90deg, #e94560, #0f3460); border: none; color: #fff; padding: 10px 30px; border-radius: 25px; font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
         .app-modal-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(233,69,96,0.4); }
+
+        /* File Explorer Window */
+        #file-explorer-window { width: 700px; height: 480px; }
+        .file-explorer-toolbar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #2d2d2d; border-bottom: 1px solid #444; }
+        .nav-btn { background: transparent; border: none; color: #888; font-size: 16px; padding: 6px 10px; cursor: pointer; border-radius: 4px; }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .address-bar { flex: 1; display: flex; align-items: center; background: #1a1a1a; border: 1px solid #444; border-radius: 4px; padding: 6px 12px; }
+        .address-bar-icon { color: #888; margin-right: 8px; }
+        .address-bar-path { color: #fff; font-size: 12px; font-family: 'Fira Code', monospace; flex: 1; }
+        .file-explorer-content { display: flex; height: calc(100% - 90px); }
+        .file-sidebar { width: 180px; background: #1a1a1a; border-right: 1px solid #333; padding: 10px 0; overflow-y: auto; }
+        .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 8px 15px; color: #ccc; font-size: 12px; cursor: pointer; }
+        .sidebar-item:hover { background: rgba(255,255,255,0.05); }
+        .sidebar-item.active { background: rgba(0,120,212,0.3); color: #fff; }
+        .sidebar-icon { font-size: 16px; }
+        .file-main { flex: 1; background: #1e1e1e; padding: 15px; overflow-y: auto; }
+        .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; }
+        .file-item { display: flex; flex-direction: column; align-items: center; padding: 12px 8px; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        .file-item:hover { background: rgba(255,255,255,0.08); }
+        .file-item.selected { background: rgba(0,120,212,0.3); }
+        .file-item-icon { font-size: 40px; margin-bottom: 8px; }
+        .file-item-name { color: #fff; font-size: 11px; text-align: center; word-break: break-word; max-width: 90px; }
+        .file-item.file .file-item-icon { color: #00d4ff; }
+        .empty-folder { color: #666; font-size: 13px; text-align: center; padding: 40px; }
+        .breadcrumb { display: flex; align-items: center; gap: 4px; }
+        .breadcrumb-item { color: #0af; cursor: pointer; }
+        .breadcrumb-item:hover { text-decoration: underline; }
+        .breadcrumb-separator { color: #666; }
     </style>
 </head>
 <body>
@@ -235,14 +264,14 @@
                         <span class="wifi-signal">▂▄▆</span>
                         <span class="wifi-lock">🔒</span>
                     </div>
-                    <div class="wifi-network" onclick="selectNetwork(this, 'meta_data')" id="target-network">
+                    <div class="wifi-network {% if show_terminal %}connected{% endif %}" onclick="selectNetwork(this, 'meta_data')" id="target-network">
                         <span class="wifi-icon">📶</span>
                         <div class="wifi-info">
                             <div class="wifi-name">meta data</div>
-                            <div class="wifi-status">Secured</div>
+                            <div class="wifi-status">{% if show_terminal %}Connected{% else %}Secured{% endif %}</div>
                         </div>
                         <span class="wifi-signal">▂▄▆█</span>
-                        <span class="wifi-lock">🔒</span>
+                        <span class="wifi-lock">{% if show_terminal %}✓{% else %}🔒{% endif %}</span>
                     </div>
                     <div class="wifi-network" onclick="selectNetwork(this, 'guest')" id="network-guest">
                         <span class="wifi-icon">📶</span>
@@ -255,6 +284,7 @@
                     </div>
                 </div>
                 
+                {% if not show_terminal %}
                 <div class="wifi-password-section" id="password-section">
                     <label>Enter the network security key</label>
                     <form method="POST" id="wifi-form" onsubmit="return handleConnect(event)">
@@ -269,6 +299,7 @@
                     <div style="font-size: 24px; margin-bottom: 10px;">📡</div>
                     <div id="status-text">Connecting<span class="connecting-dots"></span></div>
                 </div>
+                {% endif %}
             </div>
         </div>
 
@@ -281,7 +312,7 @@
             </div>
             <div id="taskbar-right">
                 <div class="system-tray" onclick="toggleWifi()">
-                    <span class="tray-icon wifi-indicator disconnected" id="wifi-tray">📶</span>
+                    <span class="tray-icon wifi-indicator {% if show_terminal %}connected{% else %}disconnected{% endif %}" id="wifi-tray">📶</span>
                     <span class="tray-icon">🔊</span>
                     <span class="tray-icon">🔋</span>
                 </div>
@@ -341,6 +372,52 @@
                 <div class="app-modal-title" id="app-modal-title">Access Denied</div>
                 <div class="app-modal-message" id="app-modal-message">This application is not available.</div>
                 <button class="app-modal-btn" onclick="closeAppModal()">Got it</button>
+            </div>
+        </div>
+
+        <!-- File Explorer Window -->
+        <div id="file-explorer-window" class="window" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+            <div class="title-bar" onmousedown="startDrag(event, 'file-explorer-window')">
+                <div class="title-bar-left">
+                    <div class="window-controls">
+                        <div class="window-btn btn-close" onclick="closeWindow('file-explorer-window')"></div>
+                        <div class="window-btn btn-minimize"></div>
+                        <div class="window-btn btn-maximize"></div>
+                    </div>
+                    <span class="title-bar-title">File Explorer</span>
+                </div>
+            </div>
+            <div class="file-explorer-toolbar">
+                <button class="nav-btn" id="nav-back" onclick="navigateBack()" disabled>←</button>
+                <button class="nav-btn" id="nav-forward" onclick="navigateForward()" disabled>→</button>
+                <button class="nav-btn" onclick="navigateUp()">↑</button>
+                <div class="address-bar">
+                    <span class="address-bar-icon">📁</span>
+                    <div class="address-bar-path" id="address-bar-path">Z:\\</div>
+                </div>
+            </div>
+            <div class="file-explorer-content">
+                <div class="file-sidebar">
+                    <div class="sidebar-item" onclick="navigateTo('Z:')">
+                        <span class="sidebar-icon">💾</span>
+                        <span>Local Disk (Z:)</span>
+                    </div>
+                    <div class="sidebar-item" onclick="navigateTo('C:')">
+                        <span class="sidebar-icon">💻</span>
+                        <span>Local Disk (C:)</span>
+                    </div>
+                    <div class="sidebar-item" onclick="navigateTo('Desktop')">
+                        <span class="sidebar-icon">🖥️</span>
+                        <span>Desktop</span>
+                    </div>
+                    <div class="sidebar-item" onclick="navigateTo('Documents')">
+                        <span class="sidebar-icon">📄</span>
+                        <span>Documents</span>
+                    </div>
+                </div>
+                <div class="file-main" id="file-main">
+                    <!-- Files will be rendered here -->
+                </div>
             </div>
         </div>
     </div>
@@ -486,13 +563,243 @@
 
         // Auto-open WiFi window on page load
         window.addEventListener('load', function() {
-            setTimeout(() => {
-                openWindow('wifi-window');
-                // Auto-select the target network
-                const targetNetwork = document.getElementById('target-network');
-                selectNetwork(targetNetwork, 'meta_data');
-            }, 800);
+            {% if show_terminal %}
+                // Trigger glitch and terminal on successful login
+                triggerGlitchAndTerminal();
+            {% else %}
+                setTimeout(() => {
+                    openWindow('wifi-window');
+                    // Auto-select the target network
+                    const targetNetwork = document.getElementById('target-network');
+                    selectNetwork(targetNetwork, 'meta_data');
+                }, 800);
+            {% endif %}
         });
+
+        function triggerGlitchAndTerminal() {
+            // Show glitch effect
+            const glitchDiv = document.createElement('div');
+            glitchDiv.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 99999;
+                animation: glitchEffect 0.1s infinite;
+                pointer-events: none;
+            `;
+            document.body.appendChild(glitchDiv);
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes glitchEffect {
+                    0%, 100% { background: #000; opacity: 1; }
+                    10% { background: #f00; opacity: 0.8; }
+                    20% { background: #0f0; opacity: 0.9; }
+                    30% { background: #00f; opacity: 0.7; }
+                    40% { background: #fff; opacity: 1; }
+                    50% { background: #000; opacity: 0.6; }
+                    60% { background: #ff0; opacity: 0.9; }
+                    70% { background: #0ff; opacity: 0.8; }
+                    80% { background: #f0f; opacity: 0.7; }
+                    90% { background: #000; opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // After 1 second, remove glitch and show terminal
+            setTimeout(() => {
+                glitchDiv.remove();
+                showTerminalScreen();
+            }, 1000);
+        }
+
+        function showTerminalScreen() {
+            // Close WiFi window first
+            closeWindow('wifi-window');
+
+            // Create terminal window (CMD style)
+            const terminal = document.createElement('div');
+            terminal.id = 'terminal-window';
+            terminal.className = 'window';
+            terminal.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 750px;
+                height: 500px;
+                background: #0c0c0c;
+                border: 1px solid #00ff00;
+                box-shadow: 0 20px 60px rgba(0,255,65,0.3);
+                z-index: 100;
+                display: flex;
+                flex-direction: column;
+                font-family: 'Consolas', 'Courier New', monospace;
+            `;
+
+            // Terminal title bar
+            const titleBar = document.createElement('div');
+            titleBar.className = 'title-bar';
+            titleBar.onmousedown = (e) => startDrag(e, 'terminal-window');
+            titleBar.style.cssText = `
+                background: #1e1e1e;
+                padding: 10px 15px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px solid #00ff00;
+                cursor: move;
+            `;
+            titleBar.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; gap: 6px;">
+                        <div style="width: 12px; height: 12px; background: #ff5f57; border-radius: 50%; cursor: pointer;" onclick="closeWindow('terminal-window')"></div>
+                        <div style="width: 12px; height: 12px; background: #ffbd2e; border-radius: 50%;"></div>
+                        <div style="width: 12px; height: 12px; background: #28ca41; border-radius: 50%;"></div>
+                    </div>
+                    <span style="color: #00ff00; font-size: 13px; text-shadow: 0 0 10px rgba(0,255,65,0.5);">⚡ Terminal - System Access</span>
+                </div>
+            `;
+            terminal.appendChild(titleBar);
+
+            // System info bar
+            const infoBar = document.createElement('div');
+            infoBar.style.cssText = `
+                background: #0c0c0c;
+                padding: 6px 15px;
+                color: #00ff00;
+                font-size: 10px;
+                border-bottom: 1px solid #1a1a1a;
+                display: flex;
+                justify-content: space-between;
+                font-weight: 500;
+            `;
+            infoBar.innerHTML = `
+                <span>System: Windows 10 | Network: meta_data | Status: <span style="color: #00ff00;">●</span> CONNECTED</span>
+                <span id="terminal-time">${new Date().toLocaleTimeString()}</span>
+            `;
+            terminal.appendChild(infoBar);
+
+            // Terminal content area
+            const content = document.createElement('div');
+            content.style.cssText = `
+                flex: 1;
+                padding: 15px;
+                overflow-y: auto;
+                background: #0c0c0c;
+                color: #00ff00;
+                font-size: 13px;
+                line-height: 1.5;
+            `;
+            content.id = 'terminal-content';
+            terminal.appendChild(content);
+
+            document.getElementById('desktop-screen').appendChild(terminal);
+
+            // Update time every second
+            setInterval(() => {
+                const timeEl = document.getElementById('terminal-time');
+                if (timeEl) timeEl.textContent = new Date().toLocaleTimeString();
+            }, 1000);
+
+            // Initial prompt
+            const initialLine = document.createElement('div');
+            initialLine.innerHTML = `<span style="color: #0f0;">Microsoft Windows [Version 10.0.19044.1234]</span><br><span style="color: #0a0;">(c) Microsoft Corporation. All rights reserved.</span><br><br>`;
+            content.appendChild(initialLine);
+
+            // Commands to execute
+            const commands = [
+                { cmd: 'C:\\Users\\Agent> netsh wlan show interfaces', delay: 0 },
+                { output: 'Name                   : Wi-Fi\nDescription            : Intel(R) Wireless Adapter\nState                  : connected\nSSID                   : meta_data\nSignal                 : 100%', delay: 800, color: '#0a0' },
+                { cmd: '', delay: 1600 },
+                { cmd: 'C:\\Users\\Agent> ipconfig /all', delay: 2400 },
+                { output: 'Connection-specific DNS Suffix  : meta_data.local\nIPv4 Address                     : 192.168.1.157\nSubnet Mask                      : 255.255.255.0\nDefault Gateway                  : 192.168.1.1', delay: 3200, color: '#0a0' },
+                { cmd: '', delay: 4000 },
+                { cmd: 'C:\\Users\\Agent> cd /d Z:\\SecureFiles', delay: 4800 },
+                { cmd: '', delay: 5600 },
+                { cmd: 'Z:\\SecureFiles> dir /s /b *.b64', delay: 6400 },
+                { output: 'Searching for encrypted files...', delay: 7200, color: '#ff0' },
+                { output: '[████████████████████████] 100% Complete', delay: 8000, color: '#0f0' },
+                { output: '\nFound: 1 file(s)', delay: 8800, color: '#0f0' },
+                { cmd: '', delay: 9600 },
+                { output: 'Z:\\SecureFiles\\download\\filesname\\revil\\encodetext.b64', delay: 10400, color: '#0ff', highlight: true },
+                { cmd: '', delay: 11200 },
+                { cmd: 'Z:\\SecureFiles> echo File location saved successfully', delay: 12000 },
+                { output: 'File location saved successfully', delay: 12800, color: '#0f0' },
+                { cmd: '', delay: 13600 },
+                { cmd: 'Z:\\SecureFiles> _', delay: 14400, cursor: true }
+            ];
+
+            commands.forEach((item) => {
+                setTimeout(() => {
+                    if (item.cmd !== undefined) {
+                        const cmdLine = document.createElement('div');
+                        cmdLine.style.marginTop = '4px';
+                        if (item.cursor) {
+                            cmdLine.innerHTML = `<span style="color: #0f0;">${item.cmd.replace('_', '')}</span><span style="animation: blink 1s infinite;">█</span>`;
+                            // Show proceed button after terminal completes
+                            setTimeout(() => {
+                                const proceedBtn = document.createElement('div');
+                                proceedBtn.style.cssText = `
+                                    margin-top: 20px;
+                                    padding: 12px 20px;
+                                    text-align: center;
+                                `;
+                                proceedBtn.innerHTML = `
+                                    <button onclick="window.location.href='/twofactor'" style="
+                                        background: linear-gradient(90deg, #00ff41, #00cc33);
+                                        border: none;
+                                        color: #000;
+                                        padding: 12px 30px;
+                                        font-size: 14px;
+                                        font-weight: bold;
+                                        font-family: 'Fira Code', monospace;
+                                        cursor: pointer;
+                                        border-radius: 4px;
+                                        box-shadow: 0 0 20px rgba(0,255,65,0.4);
+                                        animation: pulseBtn 2s infinite;
+                                    ">▶ PROCEED TO 2FA VERIFICATION</button>
+                                    <style>
+                                        @keyframes pulseBtn {
+                                            0%, 100% { box-shadow: 0 0 20px rgba(0,255,65,0.4); }
+                                            50% { box-shadow: 0 0 35px rgba(0,255,65,0.7); }
+                                        }
+                                    </style>
+                                `;
+                                content.appendChild(proceedBtn);
+                                content.scrollTop = content.scrollHeight;
+                            }, 1500);
+                        } else {
+                            cmdLine.innerHTML = `<span style="color: #0f0;">${item.cmd}</span>`;
+                        }
+                        content.appendChild(cmdLine);
+                    } else if (item.output !== undefined) {
+                        const outputLine = document.createElement('div');
+                        outputLine.style.cssText = `
+                            margin: 4px 0 4px 10px;
+                            color: ${item.color || '#0a0'};
+                            white-space: pre-line;
+                            ${item.highlight ? 'font-size: 15px; font-weight: bold; text-shadow: 0 0 15px #0ff; letter-spacing: 0.5px;' : ''}
+                        `;
+                        outputLine.textContent = item.output;
+                        content.appendChild(outputLine);
+                    }
+                    content.scrollTop = content.scrollHeight;
+                }, item.delay);
+            });
+
+            // Add blink animation for cursor
+            const blinkStyle = document.createElement('style');
+            blinkStyle.textContent = `
+                @keyframes blink {
+                    0%, 50% { opacity: 1; }
+                    51%, 100% { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(blinkStyle);
+        }
 
         // Start Menu
         function toggleStartMenu() {
@@ -508,8 +815,182 @@
             }
         });
 
+        // File System Structure
+        const fileSystem = {
+            'Z:': [
+                { name: 'SecureFiles', type: 'folder', icon: '📁' },
+                { name: 'System', type: 'folder', icon: '📁' },
+                { name: 'readme.txt', type: 'file', icon: '📄' }
+            ],
+            'Z:/SecureFiles': [
+                { name: 'download', type: 'folder', icon: '📁' },
+                { name: 'logs', type: 'folder', icon: '📁' },
+                { name: 'config.ini', type: 'file', icon: '⚙️' }
+            ],
+            'Z:/SecureFiles/download': [
+                { name: 'filesname', type: 'folder', icon: '📁' },
+                { name: 'temp', type: 'folder', icon: '📁' }
+            ],
+            'Z:/SecureFiles/download/filesname': [
+                { name: 'revil', type: 'folder', icon: '📁' },
+                { name: 'backup', type: 'folder', icon: '📁' }
+            ],
+            'Z:/SecureFiles/download/filesname/revil': [
+                { name: 'encodetext.b64', type: 'file', icon: '🔐', downloadable: true, downloadPath: '/static/encodetext.b64.txt' }
+            ],
+            'Z:/SecureFiles/download/filesname/backup': [],
+            'Z:/SecureFiles/download/temp': [],
+            'Z:/SecureFiles/logs': [
+                { name: 'access.log', type: 'file', icon: '📄' },
+                { name: 'error.log', type: 'file', icon: '📄' }
+            ],
+            'Z:/System': [
+                { name: 'boot.ini', type: 'file', icon: '⚙️' },
+                { name: 'drivers', type: 'folder', icon: '📁' }
+            ],
+            'Z:/System/drivers': [],
+            'C:': [
+                { name: 'Windows', type: 'folder', icon: '📁' },
+                { name: 'Program Files', type: 'folder', icon: '📁' },
+                { name: 'Users', type: 'folder', icon: '📁' }
+            ],
+            'C:/Windows': [
+                { name: 'System32', type: 'folder', icon: '📁' }
+            ],
+            'C:/Windows/System32': [
+                { name: 'ACCESS DENIED', type: 'file', icon: '🚫' }
+            ],
+            'C:/Program Files': [],
+            'C:/Users': [
+                { name: 'Agent', type: 'folder', icon: '👤' }
+            ],
+            'C:/Users/Agent': [
+                { name: 'Desktop', type: 'folder', icon: '🖥️' },
+                { name: 'Documents', type: 'folder', icon: '📄' }
+            ],
+            'C:/Users/Agent/Desktop': [],
+            'C:/Users/Agent/Documents': [],
+            'Desktop': [
+                { name: 'Evidence_01.jpg', type: 'file', icon: '🖼️' },
+                { name: 'Evidence_02.jpg', type: 'file', icon: '🖼️' },
+                { name: 'Evidence_03.jpg', type: 'file', icon: '🖼️' }
+            ],
+            'Documents': []
+        };
+
+        let currentPath = 'Z:';
+        let pathHistory = ['Z:'];
+        let historyIndex = 0;
+
+        function renderFiles(path) {
+            const fileMain = document.getElementById('file-main');
+            const addressBar = document.getElementById('address-bar-path');
+            const files = fileSystem[path];
+            
+            currentPath = path;
+            // Display path with backslashes for Windows look
+            addressBar.textContent = path.replace(/\//g, '\\') + '\\';
+            
+            if (!files || files.length === 0) {
+                fileMain.innerHTML = '<div class="empty-folder">This folder is empty</div>';
+                return;
+            }
+            
+            let html = '<div class="file-grid">';
+            files.forEach(file => {
+                const newPath = path + '/' + file.name;
+                if (file.type === 'folder') {
+                    html += `<div class="file-item folder" ondblclick="navigateTo('${newPath}')">
+                        <div class="file-item-icon">${file.icon}</div>
+                        <div class="file-item-name">${file.name}</div>
+                    </div>`;
+                } else if (file.downloadable) {
+                    html += `<div class="file-item file" ondblclick="downloadFile('${file.downloadPath}', '${file.name}')">
+                        <div class="file-item-icon">${file.icon}</div>
+                        <div class="file-item-name">${file.name}</div>
+                    </div>`;
+                } else {
+                    html += `<div class="file-item file" ondblclick="openFile('${file.name}')">
+                        <div class="file-item-icon">${file.icon}</div>
+                        <div class="file-item-name">${file.name}</div>
+                    </div>`;
+                }
+            });
+            html += '</div>';
+            fileMain.innerHTML = html;
+            
+            updateNavButtons();
+        }
+
+        function navigateTo(path) {
+            if (fileSystem[path] !== undefined) {
+                // Add to history
+                if (historyIndex < pathHistory.length - 1) {
+                    pathHistory = pathHistory.slice(0, historyIndex + 1);
+                }
+                pathHistory.push(path);
+                historyIndex = pathHistory.length - 1;
+                renderFiles(path);
+            }
+        }
+
+        function navigateBack() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                renderFiles(pathHistory[historyIndex]);
+            }
+        }
+
+        function navigateForward() {
+            if (historyIndex < pathHistory.length - 1) {
+                historyIndex++;
+                renderFiles(pathHistory[historyIndex]);
+            }
+        }
+
+        function navigateUp() {
+            const lastSlash = currentPath.lastIndexOf('/');
+            if (lastSlash > 0) {
+                const parentPath = currentPath.substring(0, lastSlash);
+                navigateTo(parentPath);
+            } else if (currentPath.includes('/')) {
+                // Go to root like C: or Z:
+                const root = currentPath.split('/')[0];
+                navigateTo(root);
+            }
+        }
+
+        function updateNavButtons() {
+            document.getElementById('nav-back').disabled = historyIndex <= 0;
+            document.getElementById('nav-forward').disabled = historyIndex >= pathHistory.length - 1;
+        }
+
+        function downloadFile(path, filename) {
+            const link = document.createElement('a');
+            link.href = path;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function openFile(filename) {
+            // Show a message for non-downloadable files
+            document.getElementById('app-modal-icon').innerText = '📄';
+            document.getElementById('app-modal-title').innerText = filename;
+            document.getElementById('app-modal-message').innerText = 'This file cannot be opened. It might be corrupted or encrypted by the suspect.';
+            document.getElementById('app-modal-overlay').classList.add('active');
+        }
+
+        function openFileExplorer() {
+            document.getElementById('start-menu').classList.remove('active');
+            const win = document.getElementById('file-explorer-window');
+            win.classList.add('active');
+            bringToFront(win);
+            renderFiles(currentPath);
+        }
+
         const appModalMessages = {
-            'File Explorer': { icon: '📁', title: 'File Explorer - Error 404', message: "The files you're looking for have been moved to a location that doesn't exist. Probably by the suspect. Nice try though! 🕵️" },
             'Terminal': { icon: '💻', title: 'Terminal Access Denied', message: "sudo access denied. You thought you could hack the hacker? That's cute. Maybe try asking nicely? 😏" },
             'Settings': { icon: '⚙️', title: 'Settings Locked', message: "These settings are protected by 256-bit encryption and a very angry cat. The cat said no. 🐱" },
             'Notepad': { icon: '📝', title: 'Notepad Unavailable', message: "Notepad is currently being used to write a villain monologue. Please wait approximately... forever. ✍️" },
@@ -517,6 +998,11 @@
         };
         function showDummyApp(appName) {
             document.getElementById('start-menu').classList.remove('active');
+            // File Explorer opens the actual file explorer
+            if (appName === 'File Explorer') {
+                openFileExplorer();
+                return;
+            }
             const modal = appModalMessages[appName] || { icon: '🚫', title: 'Application Error', message: `${appName} crashed because it sensed your detective energy. Try again never! 😈` };
             document.getElementById('app-modal-icon').innerText = modal.icon;
             document.getElementById('app-modal-title').innerText = modal.title;
