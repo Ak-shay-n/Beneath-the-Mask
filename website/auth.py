@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, logout_user, current_user
 from . import db
 from datetime import datetime
@@ -18,10 +18,17 @@ def get_elapsed_time():
 @login_required
 def login_page():
     if request.method == "POST":
-        if (
-            request.form.get("username").upper() in ["SANJAY KALPANA", "SANJAYKALPANA"]
-            and request.form.get("password") == "143kalpana"
-        ):
+        username = request.form.get("username", "").strip().upper()
+        password = request.form.get("password", "")
+        
+        # Get credentials from config (environment variables)
+        valid_username = current_app.config.get('GAME_USERNAME', '')
+        valid_password = current_app.config.get('GAME_PASSWORD', '')
+        
+        # Check both variations of username (with/without space)
+        valid_usernames = [valid_username, valid_username.replace(" ", "")]
+        
+        if username in valid_usernames and password == valid_password:
             flash(
                 "Suspicious Activity! please answer security questions to continue",
                 "doubt",
@@ -41,10 +48,15 @@ def login_page():
 def security():
     wrongans = []
     if request.method == "POST":
-        creds = {"Catname": "30/12/2004", "Hometown": "DIYA", "Food": "SANJAY@111122"}
-        Catname = request.form.get("Catname")
-        Hometown = request.form.get("Hometown")
-        Food = request.form.get("Food")
+        # Get security answers from config (environment variables)
+        creds = {
+            "Catname": current_app.config.get('SECURITY_ANSWER_1', ''),
+            "Hometown": current_app.config.get('SECURITY_ANSWER_2', ''),
+            "Food": current_app.config.get('SECURITY_ANSWER_3', '')
+        }
+        Catname = request.form.get("Catname", "").strip()
+        Hometown = request.form.get("Hometown", "").strip()
+        Food = request.form.get("Food", "").strip()
         if (
             Catname.upper() == creds["Catname"]
             and Hometown.upper() == creds["Hometown"]
@@ -91,10 +103,10 @@ def last_page():
 @login_required
 def twofactor():
     if request.method == "POST":
-        otp = request.form.get("otp")
-        # Accept answer in format DD/MM/YYYY - correct answer is 03/02/2026
-        correct_answer = "03/02/2026"
-        if otp.strip() == correct_answer:
+        otp = request.form.get("otp", "").strip()
+        # Get 2FA answer from config (environment variables)
+        correct_answer = current_app.config.get('TWO_FA_ANSWER', '')
+        if otp == correct_answer:
             current_user.isofa = True
             current_user.ofatime = f"{get_elapsed_time()}s"
             db.session.commit()
@@ -123,10 +135,10 @@ def final_riddle():
         return redirect(url_for("auth.twofactor"))
     
     if request.method == "POST":
-        answer = request.form.get("answer")
-        # Answer: "Volodymyr Zelenskyy"
-        correct_answer = "volodymyr zelenskyy"
-        if answer.strip().lower() == correct_answer:
+        answer = request.form.get("answer", "").strip()
+        # Get final riddle answer from config (environment variables)
+        correct_answer = current_app.config.get('FINAL_RIDDLE_ANSWER', '')
+        if answer.lower() == correct_answer:
             current_user.completed = f"{get_elapsed_time()}s"
             db.session.commit()
             return redirect(url_for("auth.last_page"))
