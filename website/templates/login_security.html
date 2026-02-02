@@ -145,7 +145,11 @@
         #app-terminal-window { width: 550px; height: 380px; top: 80px; left: 120px; display: none; position: absolute; z-index: 100; }
         #app-terminal-window.active { display: block; }
         .app-terminal-content { background: #0c0c0c; height: calc(100% - 32px); padding: 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; color: #00ff00; overflow-y: auto; display: flex; flex-direction: column; border: 1px solid #00ff41; border-top: none; }
+        .app-terminal-content::-webkit-scrollbar { display: none; }
+        .app-terminal-content { scrollbar-width: none; -ms-overflow-style: none; }
         .app-terminal-output { flex: 1; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
+        .app-terminal-output::-webkit-scrollbar { display: none; }
+        .app-terminal-output { scrollbar-width: none; -ms-overflow-style: none; }
         .app-terminal-output .cmd-line { color: #00ff00; }
         .app-terminal-output .cmd-response { color: #cccccc; margin-bottom: 8px; }
         .app-terminal-input-line { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
@@ -231,6 +235,16 @@
         .app-modal-message { color: #a2a8d3; font-size: 14px; line-height: 1.6; font-family: 'Inter', sans-serif; margin-bottom: 20px; }
         .app-modal-btn { background: linear-gradient(90deg, #e94560, #0f3460); border: none; color: #fff; padding: 10px 30px; border-radius: 25px; font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
         .app-modal-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(233,69,96,0.4); }
+        
+        /* WiFi Password Window */
+        #wifi-pass-window { width: 420px; height: auto; }
+        .wifi-pass-content { background: #1e1e1e; padding: 20px; border: 1px solid var(--accent); border-top: none; }
+        .wifi-pass-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #333; }
+        .wifi-pass-icon { font-size: 32px; }
+        .wifi-pass-title { color: var(--accent); font-size: 16px; font-weight: 600; }
+        .wifi-pass-info { background: #0a0a0a; border: 1px solid #333; border-radius: 6px; padding: 12px 15px; margin-bottom: 12px; }
+        .wifi-pass-label { color: #888; font-size: 11px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .wifi-pass-value { color: #fff; font-size: 15px; font-family: 'Fira Code', monospace; font-weight: 600; letter-spacing: 0.5px; word-break: break-all; }
 
         /* File Explorer Window */
         #file-explorer-window { width: 700px; height: 480px; }
@@ -277,6 +291,14 @@
             <div class="icon" onclick="downloadImage('ghajini3.jpeg')">
                 <div class="icon-img">🖼️</div>
                 <div class="icon-label">Evidence_03</div>
+            </div>
+            <div class="icon" onclick="showWifiPassword()">
+                <div class="icon-img">📄</div>
+                <div class="icon-label">wifi-pass</div>
+            </div>
+            <div class="icon" onclick="openTerminal()">
+                <div class="icon-img">💻</div>
+                <div class="icon-label">Terminal</div>
             </div>
         </div>
 
@@ -328,7 +350,7 @@
                     <div class="wifi-network" onclick="selectNetwork(this, 'guest')" id="network-guest">
                         <span class="wifi-icon">📶</span>
                         <div class="wifi-info">
-                            <div class="wifi-name">GUEST_NETWORK</div>
+                            <div class="wifi-name">Guest_Network</div>
                             <div class="wifi-status">Secured</div>
                         </div>
                         <span class="wifi-signal">▂▄</span>
@@ -407,13 +429,13 @@
         </div>
 
         <!-- App Terminal Window -->
-        <div id="app-terminal-window" class="window">
+        <div id="app-terminal-window" class="window" style="top: 100px; left: 300px; width: 550px; height: 380px;">
             <div class="title-bar" onmousedown="startDrag(event, 'app-terminal-window')">
-                <div class="title-bar-left"><span class="title-bar-title">Terminal</span></div>
+                <div class="title-bar-left"><span class="title-bar-title">💻 Terminal</span></div>
                 <div class="window-controls">
-                    <div class="window-btn btn-minimize">─</div>
-                    <div class="window-btn btn-maximize">☐</div>
-                    <div class="window-btn btn-close" onclick="closeAppWindow('app-terminal-window')">✕</div>
+                    <div class="window-btn btn-minimize" onclick="event.stopPropagation(); minimizeWindow('app-terminal-window')">─</div>
+                    <div class="window-btn btn-maximize" onclick="event.stopPropagation(); maximizeWindow('app-terminal-window')">☐</div>
+                    <div class="window-btn btn-close" onclick="event.stopPropagation(); closeWindow('app-terminal-window')">✕</div>
                 </div>
             </div>
             <div class="app-terminal-content">
@@ -548,6 +570,34 @@
                 <button class="app-modal-btn" onclick="closeAppModal()">Got it</button>
             </div>
         </div>
+        
+        <!-- WiFi Password Window -->
+        <div id="wifi-pass-window" class="window" style="top: 150px; left: 200px;">
+            <div class="title-bar" onmousedown="startDrag(event, 'wifi-pass-window')">
+                <div class="title-bar-left">
+                    <span class="title-bar-title">🔐 wifi-pass.txt - Notepad</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn btn-minimize" onclick="minimizeWindow('wifi-pass-window')">─</div>
+                    <div class="window-btn btn-maximize" onclick="maximizeWindow('wifi-pass-window')">☐</div>
+                    <div class="window-btn btn-close" onclick="closeWindow('wifi-pass-window')">✕</div>
+                </div>
+            </div>
+            <div class="wifi-pass-content window-content">
+                <div class="wifi-pass-header">
+                    <div class="wifi-pass-icon">🔐</div>
+                    <div class="wifi-pass-title">WiFi Network Credentials</div>
+                </div>
+                <div class="wifi-pass-info">
+                    <div class="wifi-pass-label">Network Name</div>
+                    <div class="wifi-pass-value">Guest_Network</div>
+                </div>
+                <div class="wifi-pass-info">
+                    <div class="wifi-pass-label">Password</div>
+                    <div class="wifi-pass-value">Guest@!23</div>
+                </div>
+            </div>
+        </div>
 
         <!-- File Explorer Window -->
         <div id="file-explorer-window" class="window" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
@@ -615,6 +665,16 @@
             link.click();
             document.body.removeChild(link);
         }
+        
+        // Show WiFi password modal
+        function showWifiPassword() {
+            document.getElementById('wifi-pass-modal').classList.add('active');
+        }
+        
+        // Close WiFi password modal
+        function closeWifiPassModal() {
+            document.getElementById('wifi-pass-modal').classList.remove('active');
+        }
 
         // Window management
         let zIndexCounter = 100;
@@ -625,6 +685,31 @@
         }
         function closeWindow(id) {
             document.getElementById(id).classList.remove('active');
+        }
+        function minimizeWindow(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        function maximizeWindow(id) {
+            const win = document.getElementById(id);
+            if (win.dataset.maximized === 'true') {
+                win.style.top = win.dataset.origTop;
+                win.style.left = win.dataset.origLeft;
+                win.style.width = win.dataset.origWidth;
+                win.style.height = win.dataset.origHeight;
+                win.style.transform = '';
+                win.dataset.maximized = 'false';
+            } else {
+                win.dataset.origTop = win.style.top;
+                win.dataset.origLeft = win.style.left;
+                win.dataset.origWidth = win.style.width;
+                win.dataset.origHeight = win.style.height;
+                win.style.top = '0';
+                win.style.left = '0';
+                win.style.width = '100%';
+                win.style.height = 'calc(100% - 48px)';
+                win.style.transform = 'none';
+                win.dataset.maximized = 'true';
+            }
         }
         function bringToFront(element) {
             zIndexCounter++;
@@ -674,7 +759,7 @@
             connectBtn.disabled = true;
             statusText.innerHTML = 'Connecting<span class="connecting-dots"></span>';
             
-            // Only "meta data" network with correct password will work
+            // Check for valid network and password combinations
             if (selectedNetwork === 'meta_data') {
                 // Submit to backend for validation
                 setTimeout(() => {
@@ -684,8 +769,30 @@
                 setTimeout(() => {
                     document.getElementById('wifi-form').submit();
                 }, 2000);
+            } else if (selectedNetwork === 'guest' && password === 'Guest@!23') {
+                // Guest network with correct password
+                setTimeout(() => {
+                    statusText.innerHTML = 'Verifying<span class="connecting-dots"></span>';
+                }, 1000);
+                
+                setTimeout(() => {
+                    statusText.innerHTML = '<span style="color: var(--accent);">✓ Connected</span>';
+                    // Mark network as connected
+                    const guestNetwork = document.getElementById('network-guest');
+                    guestNetwork.classList.add('connected');
+                    guestNetwork.querySelector('.wifi-status').textContent = 'Connected';
+                    guestNetwork.querySelector('.wifi-lock').textContent = '✓';
+                    // Update wifi tray indicator
+                    document.getElementById('wifi-tray').classList.remove('disconnected');
+                    document.getElementById('wifi-tray').classList.add('connected');
+                }, 2500);
+                
+                setTimeout(() => {
+                    connectingStatus.classList.remove('active');
+                    passwordSection.style.display = 'none';
+                }, 3500);
             } else {
-                // Wrong network - show connection failed
+                // Wrong network or password - show connection failed
                 setTimeout(() => {
                     statusText.innerHTML = 'Verifying<span class="connecting-dots"></span>';
                 }, 1000);
@@ -1297,7 +1404,8 @@
             'C:': [
                 { name: 'Windows', type: 'folder', icon: '📁' },
                 { name: 'Program Files', type: 'folder', icon: '📁' },
-                { name: 'Users', type: 'folder', icon: '📁' }
+                { name: 'Users', type: 'folder', icon: '📁' },
+                { name: 'home', type: 'folder', icon: '📁' }
             ],
             'C:/Windows': [
                 { name: 'System32', type: 'folder', icon: '📁' }
@@ -1307,20 +1415,77 @@
             ],
             'C:/Program Files': [],
             'C:/Users': [
-                { name: 'Agent', type: 'folder', icon: '👤' }
+                { name: 'user', type: 'folder', icon: '👤' }
             ],
-            'C:/Users/Agent': [
+            'C:/Users/user': [
                 { name: 'Desktop', type: 'folder', icon: '🖥️' },
-                { name: 'Documents', type: 'folder', icon: '📄' }
+                { name: 'Documents', type: 'folder', icon: '📄' },
+                { name: 'Downloads', type: 'folder', icon: '📥' },
+                { name: 'Pictures', type: 'folder', icon: '🖼️' },
+                { name: '.secrets', type: 'folder', icon: '🔒' },
+                { name: 'notes.txt', type: 'file', icon: '📄' },
+                { name: 'wifi-pass.txt', type: 'file', icon: '📄' }
             ],
-            'C:/Users/Agent/Desktop': [],
-            'C:/Users/Agent/Documents': [],
+            'C:/Users/user/Desktop': [
+                { name: 'Evidence_01.jpg', type: 'file', icon: '🖼️', downloadable: true, downloadPath: '/static/img/ghajini1.jpeg' },
+                { name: 'Evidence_02.jpg', type: 'file', icon: '🖼️', downloadable: true, downloadPath: '/static/img/ghajini2.jpeg' },
+                { name: 'Evidence_03.jpg', type: 'file', icon: '🖼️', downloadable: true, downloadPath: '/static/img/ghajini3.jpeg' },
+                { name: 'Terminal', type: 'file', icon: '💻' },
+                { name: 'wifi-pass.txt', type: 'file', icon: '📄' }
+            ],
+            'C:/Users/user/Documents': [
+                { name: 'work', type: 'folder', icon: '📁' },
+                { name: 'personal', type: 'folder', icon: '📁' },
+                { name: 'report.pdf', type: 'file', icon: '📄' },
+                { name: 'budget.xlsx', type: 'file', icon: '📊' }
+            ],
+            'C:/Users/user/Documents/work': [
+                { name: 'project1.txt', type: 'file', icon: '📄' },
+                { name: 'meeting_notes.txt', type: 'file', icon: '📄' }
+            ],
+            'C:/Users/user/Documents/personal': [
+                { name: 'diary.txt', type: 'file', icon: '📄' },
+                { name: 'photos', type: 'folder', icon: '📁' }
+            ],
+            'C:/Users/user/Documents/personal/photos': [],
+            'C:/Users/user/Downloads': [
+                { name: 'malware.exe', type: 'file', icon: '⚠️' },
+                { name: 'suspicious.zip', type: 'file', icon: '📦' },
+                { name: 'README.txt', type: 'file', icon: '📄' }
+            ],
+            'C:/Users/user/Pictures': [
+                { name: 'vacation.jpg', type: 'file', icon: '🖼️' },
+                { name: 'family.png', type: 'file', icon: '🖼️' },
+                { name: 'screenshot.png', type: 'file', icon: '🖼️' }
+            ],
+            'C:/Users/user/.secrets': [
+                { name: 'passwords.txt', type: 'file', icon: '🔐' },
+                { name: 'bank_info.dat', type: 'file', icon: '🔐' },
+                { name: 'CONFIDENTIAL.txt', type: 'file', icon: '🔐' }
+            ],
+            'C:/home': [
+                { name: 'user', type: 'folder', icon: '👤' }
+            ],
+            'C:/home/user': [
+                { name: 'Documents', type: 'folder', icon: '📄' },
+                { name: 'Downloads', type: 'folder', icon: '📥' },
+                { name: 'Pictures', type: 'folder', icon: '🖼️' },
+                { name: '.secrets', type: 'folder', icon: '🔒' },
+                { name: 'notes.txt', type: 'file', icon: '📄' }
+            ],
             'Desktop': [
-                { name: 'Evidence_01.jpg', type: 'file', icon: '🖼️' },
-                { name: 'Evidence_02.jpg', type: 'file', icon: '🖼️' },
-                { name: 'Evidence_03.jpg', type: 'file', icon: '🖼️' }
+                { name: 'Evidence_01.jpg', type: 'file', icon: '🖼️', downloadable: true, downloadPath: '/static/img/ghajini1.jpeg' },
+                { name: 'Evidence_02.jpg', type: 'file', icon: '🖼️', downloadable: true, downloadPath: '/static/img/ghajini2.jpeg' },
+                { name: 'Evidence_03.jpg', type: 'file', icon: '🖼️', downloadable: true, downloadPath: '/static/img/ghajini3.jpeg' },
+                { name: 'wifi-pass.txt', type: 'file', icon: '📄' },
+                { name: 'Terminal', type: 'file', icon: '💻' }
             ],
-            'Documents': []
+            'Documents': [
+                { name: 'work', type: 'folder', icon: '📁' },
+                { name: 'personal', type: 'folder', icon: '📁' },
+                { name: 'report.pdf', type: 'file', icon: '📄' },
+                { name: 'budget.xlsx', type: 'file', icon: '📊' }
+            ]
         };
 
         let currentPath = 'Z:';
@@ -1490,43 +1655,821 @@
             document.getElementById(id).classList.remove('active');
         }
 
+        // Terminal File System and State
+        let terminalCurrentDir = '/home/user';
+        let terminalCommandHistory = [];
+        
+        const terminalFileSystem = {
+            '/': {
+                type: 'dir',
+                contents: ['home', 'etc', 'var', 'usr', 'bin', 'mnt']
+            },
+            '/mnt': {
+                type: 'dir',
+                contents: ['z', 'c']
+            },
+            '/mnt/z': {
+                type: 'dir',
+                contents: ['SecureFiles', 'System', 'readme.txt']
+            },
+            '/mnt/z/SecureFiles': {
+                type: 'dir',
+                contents: ['download', 'logs', 'config.ini']
+            },
+            '/mnt/z/SecureFiles/download': {
+                type: 'dir',
+                contents: ['filesname', 'temp']
+            },
+            '/mnt/z/SecureFiles/download/filesname': {
+                type: 'dir',
+                contents: ['revil', 'backup']
+            },
+            '/mnt/z/SecureFiles/download/filesname/revil': {
+                type: 'dir',
+                contents: ['encodetext.b64']
+            },
+            '/mnt/z/SecureFiles/download/filesname/backup': {
+                type: 'dir',
+                contents: []
+            },
+            '/mnt/z/SecureFiles/download/temp': {
+                type: 'dir',
+                contents: []
+            },
+            '/mnt/z/SecureFiles/logs': {
+                type: 'dir',
+                contents: ['access.log', 'error.log']
+            },
+            '/mnt/z/System': {
+                type: 'dir',
+                contents: ['boot.ini', 'drivers']
+            },
+            '/mnt/z/System/drivers': {
+                type: 'dir',
+                contents: []
+            },
+            '/mnt/c': {
+                type: 'dir',
+                contents: ['Windows', 'Program Files', 'Users']
+            },
+            '/mnt/c/Windows': {
+                type: 'dir',
+                contents: ['System32']
+            },
+            '/mnt/c/Windows/System32': {
+                type: 'dir',
+                contents: ['ACCESS DENIED']
+            },
+            '/mnt/c/Users': {
+                type: 'dir',
+                contents: ['user']
+            },
+            '/mnt/c/Users/user': {
+                type: 'dir',
+                contents: ['Desktop', 'Documents', 'Downloads', 'Pictures', '.secrets']
+            },
+            '/home': {
+                type: 'dir',
+                contents: ['user']
+            },
+            '/home/user': {
+                type: 'dir',
+                contents: ['Desktop', 'Documents', 'Downloads', 'Pictures', '.secrets', 'notes.txt', 'wifi-pass.txt']
+            },
+            '/home/user/Desktop': {
+                type: 'dir',
+                contents: ['Evidence_01.jpg', 'Evidence_02.jpg', 'Evidence_03.jpg', 'wifi-pass.txt', 'Terminal']
+            },
+            '/home/user/Documents': {
+                type: 'dir',
+                contents: ['work', 'personal', 'report.pdf', 'budget.xlsx']
+            },
+            '/home/user/Documents/work': {
+                type: 'dir',
+                contents: ['project1.txt', 'meeting_notes.txt']
+            },
+            '/home/user/Documents/personal': {
+                type: 'dir',
+                contents: ['diary.txt', 'photos']
+            },
+            '/home/user/Documents/personal/photos': {
+                type: 'dir',
+                contents: []
+            },
+            '/home/user/Downloads': {
+                type: 'dir',
+                contents: ['malware.exe', 'suspicious.zip', 'README.txt']
+            },
+            '/home/user/Pictures': {
+                type: 'dir',
+                contents: ['vacation.jpg', 'family.png', 'screenshot.png']
+            },
+            '/home/user/.secrets': {
+                type: 'dir',
+                contents: ['passwords.txt', 'bank_info.dat', 'CONFIDENTIAL.txt']
+            },
+            '/etc': {
+                type: 'dir',
+                contents: ['passwd', 'shadow', 'hosts']
+            },
+            '/var': {
+                type: 'dir',
+                contents: ['log', 'tmp']
+            },
+            '/usr': {
+                type: 'dir',
+                contents: ['bin', 'lib']
+            },
+            '/bin': {
+                type: 'dir',
+                contents: ['bash', 'ls', 'cat', 'grep']
+            }
+        };
+
+        function resolvePath(path) {
+            if (path.startsWith('/')) return path;
+            if (path === '..') {
+                const parts = terminalCurrentDir.split('/').filter(p => p);
+                parts.pop();
+                return '/' + parts.join('/') || '/';
+            }
+            if (path === '.') return terminalCurrentDir;
+            if (path === '~') return '/home/user';
+            return terminalCurrentDir === '/' ? '/' + path : terminalCurrentDir + '/' + path;
+        }
+
+        function getCompletions(partial) {
+            const parts = partial.split(' ');
+            const lastPart = parts[parts.length - 1];
+            
+            // Command completion
+            if (parts.length === 1) {
+                const commands = Object.keys(appTerminalCommands);
+                return commands.filter(cmd => cmd.startsWith(lastPart));
+            }
+            
+            // Path completion for cd, ls, cat, etc
+            if (parts[0] === 'cd' || parts[0] === 'ls' || parts[0] === 'cat') {
+                const targetPath = lastPart || '.';
+                const resolvedPath = resolvePath(targetPath);
+                const dir = terminalFileSystem[resolvedPath];
+                
+                if (dir && dir.type === 'dir') {
+                    return dir.contents.filter(item => item.startsWith(lastPart.split('/').pop() || ''));
+                }
+                
+                // Try parent directory
+                const parentPath = resolvedPath.substring(0, resolvedPath.lastIndexOf('/')) || '/';
+                const parentDir = terminalFileSystem[parentPath];
+                if (parentDir && parentDir.type === 'dir') {
+                    const searchName = lastPart.split('/').pop() || '';
+                    return parentDir.contents.filter(item => item.startsWith(searchName));
+                }
+            }
+            
+            return [];
+        }
+
         // Terminal Commands
         const appTerminalCommands = {
-            'help': 'Available commands:\n  help     - Show this help\n  whoami   - Display current user\n  date     - Show current date\n  clear    - Clear terminal\n  ls       - List files\n  pwd      - Print working directory\n  exit     - Close terminal',
+            'help': 'Available commands:\n  help      - Show this help\n  whoami    - Display current user\n  date      - Show current date\n  clear     - Clear terminal\n  ls        - List files\n  pwd       - Print working directory\n  cd        - Change directory\n  cat       - Display file contents\n  neofetch  - Display system info\n  btop      - Process monitor\n  mkdir     - Create directory\n  touch     - Create file\n  ps        - Show processes\n  uname     - System information\n  hostname  - Show hostname\n  df        - Disk usage\n  free      - Memory usage\n  ping      - Network test\n  ifconfig  - Network config\n  history   - Command history\n  exit      - Close terminal',
             'whoami': 'user (restricted)',
             'date': () => new Date().toString(),
-            'pwd': '/home/user',
-            'ls': 'Documents/  Downloads/  Pictures/  .secrets/  notes.txt',
-            'cd': 'Permission denied: Directory access restricted',
-            'cat': 'Permission denied: File access restricted',
+            'pwd': () => terminalCurrentDir,
+            'ls': (args) => {
+                const targetPath = args ? resolvePath(args) : terminalCurrentDir;
+                const dir = terminalFileSystem[targetPath];
+                
+                if (!dir) return `ls: cannot access '${args}': No such file or directory`;
+                if (dir.type !== 'dir') return `ls: ${args}: Not a directory`;
+                
+                return dir.contents.map(item => {
+                    const itemPath = targetPath === '/' ? '/' + item : targetPath + '/' + item;
+                    const itemObj = terminalFileSystem[itemPath];
+                    return itemObj && itemObj.type === 'dir' ? item + '/' : item;
+                }).join('  ');
+            },
+            'cd': (args) => {
+                if (!args || args === '~') {
+                    terminalCurrentDir = '/home/user';
+                    return '';
+                }
+                
+                const targetPath = resolvePath(args);
+                const dir = terminalFileSystem[targetPath];
+                
+                if (!dir) return `cd: ${args}: No such file or directory`;
+                if (dir.type !== 'dir') return `cd: ${args}: Not a directory`;
+                
+                // Restricted directories
+                if (targetPath.startsWith('/etc') || targetPath.startsWith('/var') || targetPath === '/') {
+                    return `cd: ${args}: Permission denied`;
+                }
+                
+                terminalCurrentDir = targetPath;
+                return '';
+            },
+            'cat': (args) => {
+                if (!args) return 'cat: missing file operand\nTry \'cat --help\' for more information.';
+                
+                const targetPath = resolvePath(args);
+                
+                // Check if file exists
+                const fileName = args.split('/').pop();
+                const dirPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+                const dir = terminalFileSystem[dirPath];
+                
+                if (!dir || !dir.contents.includes(fileName)) {
+                    return `cat: ${args}: No such file or directory`;
+                }
+                
+                // Special file contents
+                if (fileName === 'notes.txt') return 'TODO: Find the evidence\nMeeting at 3PM\nPassword changed to something secure...';
+                if (fileName === 'passwords.txt') return '⚠️ ACCESS DENIED\n🔒 This file is encrypted by JK';
+                if (fileName === 'CONFIDENTIAL.txt') return '⚠️ CLASSIFIED INFORMATION\n🔒 Requires Level 5 clearance';
+                if (fileName === 'README.txt') return 'Welcome to JK-OS\nAll your files are belong to us.\n- JK';
+                
+                return `⚠️ Permission denied: Cannot read file\n🔒 File access restricted by JK`;
+            },
             'sudo': '⚠️ Nice try! Admin access is locked by JK.',
             'rm': 'Permission denied: Cannot modify system files',
+            'mkdir': 'Permission denied: Cannot create directories in restricted mode',
+            'touch': 'Permission denied: Cannot create files in restricted mode',
+            'nano': 'Text editor disabled by JK. All your files belong to us. 😈',
+            'vim': 'Text editor disabled by JK. All your files belong to us. 😈',
+            'chmod': 'Permission denied: You cannot change permissions here',
+            'neofetch': () => {
+                const upDays = Math.floor(Math.random()*5 + 1);
+                const upHours = Math.floor(Math.random()*24);
+                const memUsed = Math.floor(Math.random()*2000 + 500);
+                const memTotal = 8192;
+                return `    ____ __ __            root@jk-system
+   / / /_/ //_/           ----------------
+  / / __/ ,<              OS: JK-OS 1.0 x86_64
+ /_/\\__/_/|_|            Host: Virtual Machine
+                         Kernel: 6.6.8-jk-custom
+   jk-os                 Uptime: ${upDays} days, ${upHours} hours
+                         Shell: ash (BusyBox)
+OS: JK-OS                Resolution: 1920x1080
+Kernel: 6.6.8-jk         DE: minimal
+Uptime: ${upDays}d ${upHours}h      WM: none
+Shell: ash               CPU: Intel i7-11700K (8) @ 3.600GHz
+Packages: 66 (apk)       Memory: ${memUsed}MiB / ${memTotal}MiB
+
+                         ⚠️ SYSTEM COMPROMISED BY JK
+                         🔒 Admin access: LOCKED`;
+            },
+            'btop': () => {
+                const cpu = Math.floor(Math.random()*100);
+                const mem = Math.floor(Math.random()*80 + 10);
+                return `╔════════════════════════════════════════╗
+║        BTOP - Process Monitor          ║
+╠════════════════════════════════════════╣
+║ CPU Usage:  [${'█'.repeat(cpu/5)}${'░'.repeat(20-cpu/5)}] ${cpu}%  ║
+║ Memory:     [${'█'.repeat(mem/5)}${'░'.repeat(20-mem/5)}] ${mem}%  ║
+║                                        ║
+║ PID   NAME              CPU    MEM     ║
+║ 1     systemd           0.2%   0.5%    ║
+║ 666   jk-rootkit        45.8%  25.3%   ║
+║ 1337  surveillance      12.4%  8.7%    ║
+║ 2048  keylogger         8.3%   4.2%    ║
+║ 3141  backdoor-srv      15.7%  12.1%   ║
+║ 4096  data-exfil        6.2%   3.8%    ║
+╠════════════════════════════════════════╣
+║ ⚠️ WARNING: Suspicious processes       ║
+║ detected! System compromised by JK.    ║
+╚════════════════════════════════════════╝
+Press 'q' to quit (just kidding, this isn't real btop 😏)`;
+            },
+            'ps': () => {
+                return `  PID TTY          TIME CMD
+    1 ?        00:00:02 systemd
+  666 pts/0    00:12:45 jk-rootkit
+ 1337 pts/0    00:05:23 surveillance
+ 2048 pts/0    00:03:12 keylogger
+ 3141 pts/0    00:08:45 backdoor-srv
+ 4096 pts/0    00:02:18 data-exfil
+ ${Math.floor(Math.random()*10000)} pts/0    00:00:01 bash
+
+⚠️ Multiple suspicious processes detected!`;
+            },
+            'top': 'Use "btop" instead for a better view of system processes',
+            'uname': 'Linux jk-system 5.15.0-jk-restricted #1 SMP x86_64 GNU/Linux',
+            'hostname': 'jk-system.compromised.local',
+            'df': () => {
+                return `Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1       100G   78G   18G  82% /
+/dev/sda2       500G  342G  158G  69% /home
+tmpfs           8.0G  1.2G  6.8G  15% /tmp
+/dev/sda3       250G  199G   51G  80% /var
+[REDACTED]     ∞     ???   ???   ??% /.secrets
+
+⚠️ Warning: System storage heavily utilized
+⚠️ Suspicious partition detected: /.secrets`;
+            },
+            'free': () => {
+                const total = 8000;
+                const used = Math.floor(Math.random()*3000 + 4000);
+                const free = total - used;
+                return `              total        used        free
+Mem:          ${total}        ${used}        ${free}
+Swap:         4096         128        3968
+Buffer/Cache: 2048
+
+⚠️ High memory usage detected
+⚠️ Possible memory leak from JK processes`;
+            },
+            'ping': 'Network access restricted. Cannot ping external hosts.',
+            'ifconfig': () => {
+                return `eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>
+        inet 192.168.1.${Math.floor(Math.random()*254+1)}  netmask 255.255.255.0
+        ether ${[...Array(6)].map(()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(':')}
+        RX packets: ${Math.floor(Math.random()*100000)}  TX packets: ${Math.floor(Math.random()*100000)}
+
+lo: flags=73<UP,LOOPBACK,RUNNING>
+        inet 127.0.0.1  netmask 255.0.0.0
+
+⚠️ Network traffic being monitored by JK`;
+            },
+            'ip': 'Try "ifconfig" instead',
+            'history': () => {
+                const cmds = ['ls', 'cd Documents', 'cat secrets.txt', 'sudo rm -rf /', 'whoami', 'help'];
+                return cmds.map((cmd, i) => `  ${i+1}  ${cmd}`).join('\n');
+            },
+            'grep': 'Usage: grep [pattern] [file]\nFile access restricted in current mode.',
+            'find': 'Permission denied: Search functionality locked by JK',
+            'man': 'Manual pages corrupted by JK. You\'re on your own! 😈',
+            'reboot': 'Permission denied: Only JK can reboot this system',
+            'shutdown': 'Permission denied: Only JK can shutdown this system',
+            'dir': (args) => {
+                // DOS/Windows-style directory listing
+                const targetPath = args ? resolvePath(args) : terminalCurrentDir;
+                const dir = terminalFileSystem[targetPath];
+                
+                if (!dir) return `The system cannot find the path specified.`;
+                if (dir.type !== 'dir') return `${args} is not a directory`;
+                
+                const date = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+                const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                
+                let output = ` Directory of ${targetPath}\n\n`;
+                output += `${date}  ${time}    <DIR>          .\n`;
+                output += `${date}  ${time}    <DIR>          ..\n`;
+                
+                dir.contents.forEach(item => {
+                    const itemPath = targetPath === '/' ? '/' + item : targetPath + '/' + item;
+                    const itemObj = terminalFileSystem[itemPath];
+                    if (itemObj && itemObj.type === 'dir') {
+                        output += `${date}  ${time}    <DIR>          ${item}\n`;
+                    } else {
+                        const size = Math.floor(Math.random() * 50000) + 1024;
+                        output += `${date}  ${time}            ${size.toString().padStart(8)} ${item}\n`;
+                    }
+                });
+                
+                const fileCount = dir.contents.filter(item => {
+                    const itemPath = targetPath === '/' ? '/' + item : targetPath + '/' + item;
+                    return !terminalFileSystem[itemPath] || terminalFileSystem[itemPath].type !== 'dir';
+                }).length;
+                const dirCount = dir.contents.length - fileCount;
+                
+                output += `\n               ${fileCount} File(s)     ${Math.floor(Math.random() * 500000)} bytes\n`;
+                output += `               ${dirCount} Dir(s)`;
+                return output;
+            },
+            'type': (args) => {
+                // Windows TYPE command
+                if (!args) return 'The syntax of the command is incorrect.';
+                
+                const targetPath = resolvePath(args);
+                const fileName = args.split('/').pop();
+                const dirPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+                const dir = terminalFileSystem[dirPath];
+                
+                if (!dir || !dir.contents.includes(fileName)) {
+                    return `The system cannot find the file specified.`;
+                }
+                
+                // Special file contents
+                if (fileName === 'notes.txt') return 'TODO: Find the evidence\nMeeting at 3PM\nPassword changed to something secure...';
+                if (fileName === 'wifi-pass.txt') return 'Network: Guest_Network\nPassword: Guest@!23\n\n⚠️ Keep this secure!';
+                if (fileName === 'passwords.txt') return '⚠️ ACCESS DENIED\n🔒 This file is encrypted by JK\nDecryption key: [REDACTED]';
+                if (fileName === 'encodetext.b64') return 'U0FOSkFZQDExMTEyMg==\n\n⚠️ Base64 encoded data found!\nHint: This might be important...';
+                if (fileName === 'CONFIDENTIAL.txt') return '⚠️ CLASSIFIED INFORMATION\n🔒 Requires Level 5 clearance\n\nOperation: [REDACTED]\nAgent: [REDACTED]\nLocation: [REDACTED]';
+                if (fileName === 'README.txt') return 'Welcome to JK-OS\nAll your files are belong to us.\n\nYou have been pwned by JK.\nGood luck finding your way out! 😈';
+                if (fileName === 'readme.txt') return 'Z: Drive - Secure Storage\n\nThis drive contains sensitive files.\nUnauthorized access is monitored.\n\n- JK';
+                
+                return `${fileName}\n\n[File contents encrypted]\n⚠️ Permission denied by JK`;
+            },
+            'netsh': (args) => {
+                if (!args || args.includes('wlan')) {
+                    return `\nInterface name : Wi-Fi
+    Description    : Intel(R) Wireless Adapter
+    State          : connected
+    SSID           : meta_data
+    Signal         : 100%
+    
+⚠️ Network activity monitored by JK
+🔒 Connection encrypted`;
+                }
+                return 'Invalid netsh command. Try: netsh wlan show interfaces';
+            },
+            'ipconfig': () => {
+                return `Windows IP Configuration
+
+Ethernet adapter Ethernet:
+   Connection-specific DNS Suffix  . : local
+   IPv4 Address. . . . . . . . . . . : 192.168.1.${Math.floor(Math.random()*254+1)}
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+
+Wireless LAN adapter Wi-Fi:
+   Connection-specific DNS Suffix  . : 
+   IPv4 Address. . . . . . . . . . . : 192.168.1.${Math.floor(Math.random()*254+1)}
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+
+⚠️ Network traffic being monitored`;
+            },
+            'systeminfo': () => {
+                return `Host Name:                 JK-SYSTEM
+OS Name:                   JK-OS 1.0
+OS Version:                10.0.19044 Build 1234
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: Intel64 Family 6 Model 140
+Total Physical Memory:     8,192 MB
+Available Physical Memory: ${8192 - Math.floor(Math.random()*3000 + 4000)} MB
+
+⚠️ SYSTEM COMPROMISED
+🔒 Admin privileges locked by JK`;
+            },
+            'tasklist': () => {
+                return `Image Name                   PID Session Name     Session#    Mem Usage
+========================= ====== ================ ========== ============
+System                         4 Services                0      1,234 K
+smss.exe                     288 Services                0      1,024 K
+csrss.exe                    396 Services                0      4,096 K
+wininit.exe                  484 Services                0      2,048 K
+jk-rootkit.exe               666 Console                 1     52,428 K
+surveillance.exe           1,337 Console                 1     16,384 K
+keylogger.exe              2,048 Console                 1      8,192 K
+backdoor-srv.exe           3,141 Console                 1     24,576 K
+data-exfil.exe             4,096 Console                 1      7,168 K
+
+⚠️ WARNING: Malicious processes detected!`;
+            },
+            'tree': (args) => {
+                const targetPath = args ? resolvePath(args) : terminalCurrentDir;
+                const dir = terminalFileSystem[targetPath];
+                
+                if (!dir) return `Folder PATH listing\n${args}: No such directory`;
+                if (dir.type !== 'dir') return `${args} is not a directory`;
+                
+                let output = `Folder PATH listing for volume Z:\n${targetPath}\n`;
+                
+                function printTree(path, prefix = '') {
+                    const d = terminalFileSystem[path];
+                    if (!d || d.type !== 'dir') return '';
+                    
+                    let result = '';
+                    d.contents.forEach((item, index) => {
+                        const isLast = index === d.contents.length - 1;
+                        const itemPath = path === '/' ? '/' + item : path + '/' + item;
+                        const itemObj = terminalFileSystem[itemPath];
+                        const connector = isLast ? '└───' : '├───';
+                        
+                        result += `${prefix}${connector} ${item}\n`;
+                        
+                        if (itemObj && itemObj.type === 'dir') {
+                            const newPrefix = prefix + (isLast ? '    ' : '│   ');
+                            result += printTree(itemPath, newPrefix);
+                        }
+                    });
+                    return result;
+                }
+                
+                output += printTree(targetPath);
+                return output;
+            },
+            'find': (args) => {
+                if (!args) return 'Usage: find [pattern]\nSearches for files matching pattern';
+                
+                const pattern = args.toLowerCase();
+                let results = [];
+                
+                function searchFiles(path) {
+                    const dir = terminalFileSystem[path];
+                    if (!dir || dir.type !== 'dir') return;
+                    
+                    dir.contents.forEach(item => {
+                        if (item.toLowerCase().includes(pattern)) {
+                            results.push(path === '/' ? '/' + item : path + '/' + item);
+                        }
+                        const itemPath = path === '/' ? '/' + item : path + '/' + item;
+                        searchFiles(itemPath);
+                    });
+                }
+                
+                searchFiles(terminalCurrentDir);
+                
+                if (results.length === 0) return `No files found matching '${args}'`;
+                
+                return `Searching for files matching '${args}'...\n\nFound ${results.length} file(s):\n` + results.join('\n');
+            },
+            'locate': (args) => {
+                return appTerminalCommands['find'](args);
+            },
+            'which': (args) => {
+                if (!args) return 'which: missing argument';
+                if (appTerminalCommands[args]) return `/usr/bin/${args}`;
+                return `${args} not found`;
+            },
+            'echo': (args) => {
+                return args || '';
+            },
+            'whoami': 'user (restricted)',
+            'id': 'uid=1000(user) gid=1000(user) groups=1000(user),27(sudo)',
+            'groups': 'user sudo',
+            'env': () => {
+                return `PATH=/usr/local/bin:/usr/bin:/bin
+HOME=/home/user
+USER=user
+SHELL=/bin/bash
+PWD=${terminalCurrentDir}
+HOSTNAME=jk-system
+LANG=en_US.UTF-8
+
+⚠️ Environment variables may be monitored`;
+            },
+            'printenv': () => appTerminalCommands['env'](),
+            'whereis': (args) => {
+                if (!args) return 'whereis: missing argument';
+                
+                let results = [];
+                function searchInDir(path, name) {
+                    const dir = terminalFileSystem[path];
+                    if (!dir || dir.type !== 'dir') return;
+                    
+                    if (dir.contents.includes(name)) {
+                        results.push(path === '/' ? '/' + name : path + '/' + name);
+                    }
+                    
+                    dir.contents.forEach(item => {
+                        const itemPath = path === '/' ? '/' + item : path + '/' + item;
+                        searchInDir(itemPath, name);
+                    });
+                }
+                
+                searchInDir('/', args);
+                
+                if (results.length === 0) return `${args}:`;
+                return `${args}: ${results.join(' ')}`;
+            },
+            'file': (args) => {
+                if (!args) return 'file: missing file operand';
+                
+                const targetPath = resolvePath(args);
+                const fileName = args.split('/').pop();
+                const dirPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+                const dir = terminalFileSystem[dirPath];
+                
+                if (!dir || !dir.contents.includes(fileName)) {
+                    return `file: cannot open '${args}' (No such file or directory)`;
+                }
+                
+                const itemPath = targetPath;
+                const itemObj = terminalFileSystem[itemPath];
+                
+                if (itemObj && itemObj.type === 'dir') {
+                    return `${args}: directory`;
+                }
+                
+                // Determine file type based on extension
+                if (fileName.endsWith('.b64')) return `${args}: ASCII text, Base64 encoded data`;
+                if (fileName.endsWith('.txt')) return `${args}: ASCII text`;
+                if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) return `${args}: JPEG image data`;
+                if (fileName.endsWith('.png')) return `${args}: PNG image data`;
+                if (fileName.endsWith('.exe')) return `${args}: PE32+ executable (console) x86-64, for MS Windows`;
+                if (fileName.endsWith('.zip')) return `${args}: Zip archive data`;
+                if (fileName.endsWith('.pdf')) return `${args}: PDF document`;
+                if (fileName.endsWith('.xlsx')) return `${args}: Microsoft Excel 2007+`;
+                if (fileName.endsWith('.log')) return `${args}: ASCII text, with very long lines`;
+                if (fileName.endsWith('.ini')) return `${args}: ASCII text, INI configuration`;
+                if (fileName.endsWith('.dat')) return `${args}: data`;
+                
+                return `${args}: ASCII text`;
+            },
+            'stat': (args) => {
+                if (!args) return 'stat: missing operand';
+                
+                const targetPath = resolvePath(args);
+                const fileName = args.split('/').pop();
+                const dirPath = targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+                const dir = terminalFileSystem[dirPath];
+                
+                if (!dir || !dir.contents.includes(fileName)) {
+                    return `stat: cannot stat '${args}': No such file or directory`;
+                }
+                
+                const itemObj = terminalFileSystem[targetPath];
+                const size = itemObj && itemObj.type === 'dir' ? 4096 : Math.floor(Math.random() * 50000) + 1024;
+                const blocks = Math.ceil(size / 512);
+                
+                return `  File: ${args}
+  Size: ${size}\t\tBlocks: ${blocks}\t\tIO Block: 4096   ${itemObj && itemObj.type === 'dir' ? 'directory' : 'regular file'}
+Device: 803h/2051d\tInode: ${Math.floor(Math.random() * 100000)}\tLinks: 1
+Access: (0${itemObj && itemObj.type === 'dir' ? '755' : '644'}/-${itemObj && itemObj.type === 'dir' ? 'rwxr-xr-x' : 'rw-r--r--'})  Uid: ( 1000/    user)   Gid: ( 1000/    user)
+Access: ${new Date().toISOString()}
+Modify: ${new Date().toISOString()}
+Change: ${new Date().toISOString()}`;
+            },
+            'head': (args) => {
+                if (!args) return 'head: missing file operand';
+                
+                const content = appTerminalCommands['cat'](args);
+                if (content.includes('No such file') || content.includes('Permission denied')) return content;
+                
+                const lines = content.split('\n').slice(0, 10);
+                return lines.join('\n');
+            },
+            'tail': (args) => {
+                if (!args) return 'tail: missing file operand';
+                
+                const content = appTerminalCommands['cat'](args);
+                if (content.includes('No such file') || content.includes('Permission denied')) return content;
+                
+                const lines = content.split('\n');
+                return lines.slice(Math.max(0, lines.length - 10)).join('\n');
+            },
+            'wc': (args) => {
+                if (!args) return 'wc: missing file operand';
+                
+                const content = appTerminalCommands['cat'](args);
+                if (content.includes('No such file') || content.includes('Permission denied')) return content;
+                
+                const lines = content.split('\n').length;
+                const words = content.split(/\s+/).length;
+                const chars = content.length;
+                
+                return `  ${lines}  ${words}  ${chars} ${args}`;
+            },
+            'grep': (args) => {
+                if (!args) return 'Usage: grep [pattern] [file]\nTry \'grep --help\' for more information.';
+                
+                const parts = args.split(' ');
+                if (parts.length < 2) return 'grep: missing file operand';
+                
+                const pattern = parts[0].toLowerCase();
+                const fileName = parts.slice(1).join(' ');
+                
+                const content = appTerminalCommands['cat'](fileName);
+                if (content.includes('No such file') || content.includes('Permission denied')) {
+                    return `grep: ${fileName}: No such file or directory`;
+                }
+                
+                const lines = content.split('\n');
+                const matches = lines.filter(line => line.toLowerCase().includes(pattern));
+                
+                if (matches.length === 0) return '';
+                return matches.join('\n');
+            },
+            'base64': (args) => {
+                if (!args) return 'base64: missing operand\nTry \'base64 --help\' for more information.';
+                
+                if (args.startsWith('-d ') || args.startsWith('--decode ')) {
+                    const data = args.replace(/^(-d|--decode)\s+/, '');
+                    try {
+                        return atob(data);
+                    } catch (e) {
+                        return 'base64: invalid input';
+                    }
+                }
+                
+                // Encode file contents
+                const content = appTerminalCommands['cat'](args);
+                if (content.includes('No such file') || content.includes('Permission denied')) return content;
+                
+                try {
+                    return btoa(content);
+                } catch (e) {
+                    return 'base64: invalid input';
+                }
+            },
+            'strings': (args) => {
+                if (!args) return 'strings: missing file operand';
+                
+                const content = appTerminalCommands['cat'](args);
+                if (content.includes('No such file') || content.includes('Permission denied')) return content;
+                
+                return `Printable strings in ${args}:\n${content}\n\n[End of strings]`;
+            },
+            'hexdump': (args) => {
+                if (!args) return 'hexdump: missing file operand';
+                
+                const fileName = args.split('/').pop();
+                
+                if (fileName === 'encodetext.b64') {
+                    return `00000000  55 30 46 4f 53 6b 46 5a  51 44 45 78 4d 54 45 78  |U0FOSkFZQDExMTEx|\n00000010  4d 6a 49 3d 0a                                    |Mjk=.           |\n00000015\n\nBase64 data detected!`;
+                }
+                
+                return `00000000  ${Array.from({length: 16}, () => Math.floor(Math.random()*256).toString(16).padStart(2, '0')).join(' ')}\n[Binary data - showing hex dump]`;
+            },
+            'md5sum': (args) => {
+                if (!args) return 'md5sum: missing file operand';
+                
+                const fileName = args.split('/').pop();
+                const hash = Array.from({length: 32}, () => Math.floor(Math.random()*16).toString(16)).join('');
+                
+                return `${hash}  ${args}`;
+            },
+            'sha256sum': (args) => {
+                if (!args) return 'sha256sum: missing file operand';
+                
+                const fileName = args.split('/').pop();
+                const hash = Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
+                
+                return `${hash}  ${args}`;
+            },
             'exit': 'EXIT_TERMINAL'
         };
         
         function handleAppTerminalInput(e) {
+            const input = document.getElementById('app-terminal-input');
+            const output = document.getElementById('app-terminal-output');
+            
+            // Tab autocomplete
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const currentInput = input.value;
+                const completions = getCompletions(currentInput);
+                
+                if (completions.length === 1) {
+                    const parts = currentInput.split(' ');
+                    parts[parts.length - 1] = completions[0];
+                    input.value = parts.join(' ');
+                } else if (completions.length > 1) {
+                    output.innerHTML += `<div class="cmd-line">user@jk-system:${terminalCurrentDir}$ ${currentInput}</div>`;
+                    output.innerHTML += `<div class="cmd-response">${completions.join('  ')}</div>`;
+                    output.scrollTop = output.scrollHeight;
+                }
+                return;
+            }
+            
             if (e.key === 'Enter') {
-                const input = document.getElementById('app-terminal-input');
-                const output = document.getElementById('app-terminal-output');
-                const cmd = input.value.trim().toLowerCase();
+                const cmd = input.value.trim();
+                const cmdLower = cmd.toLowerCase();
                 
-                output.innerHTML += `<div class="cmd-line">user@jk-system:~$ ${input.value}</div>`;
+                // Update prompt with current directory
+                const displayPath = terminalCurrentDir.replace('/home/user', '~');
+                output.innerHTML += `<div class="cmd-line">user@jk-system:${displayPath}$ ${input.value}</div>`;
                 
-                if (cmd === 'clear') {
+                // Add to history
+                if (cmd) terminalCommandHistory.push(cmd);
+                
+                if (cmdLower === 'clear') {
                     output.innerHTML = '<div class="cmd-response">JK-OS Terminal v2.0.26 [Restricted Access]</div>';
                 } else if (cmd === '') {
                     // Empty command
                 } else {
-                    const baseCmd = cmd.split(' ')[0];
+                    const parts = cmd.split(' ');
+                    const baseCmd = parts[0].toLowerCase();
+                    const args = parts.slice(1).join(' ');
+                    
                     let response = appTerminalCommands[baseCmd];
-                    if (response === 'EXIT_TERMINAL') { closeAppWindow('app-terminal-window'); input.value = ''; return; }
-                    if (typeof response === 'function') response = response();
-                    if (!response) response = `'${baseCmd}': command not found. Type 'help' for available commands.`;
-                    output.innerHTML += `<div class="cmd-response">${response}</div>`;
+                    
+                    if (response === 'EXIT_TERMINAL') { 
+                        closeWindow('app-terminal-window'); 
+                        input.value = ''; 
+                        return; 
+                    }
+                    
+                    if (typeof response === 'function') {
+                        response = response(args);
+                    }
+                    
+                    if (!response && response !== '') {
+                        response = `'${baseCmd}': command not found. Type 'help' for available commands.`;
+                    }
+                    
+                    if (response) {
+                        output.innerHTML += `<div class="cmd-response">${response}</div>`;
+                    }
                 }
                 
                 input.value = '';
                 output.scrollTop = output.scrollHeight;
+                
+                // Update prompt placeholder
+                updateTerminalPrompt();
+            }
+        }
+        
+        function updateTerminalPrompt() {
+            const promptElement = document.querySelector('.app-terminal-input-line .prompt');
+            if (promptElement) {
+                const displayPath = terminalCurrentDir.replace('/home/user', '~');
+                promptElement.textContent = `user@jk-system:${displayPath}$`;
             }
         }
 
@@ -1575,6 +2518,17 @@
 
         function closeAppModal() { document.getElementById('app-modal-overlay').classList.remove('active'); }
         document.getElementById('app-modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'app-modal-overlay') closeAppModal(); });
+        
+        function showWifiPassword() {
+            openWindow('wifi-pass-window');
+        }
+        
+        function openTerminal() {
+            const win = document.getElementById('app-terminal-window');
+            win.classList.add('active');
+            bringToFront(win);
+            document.getElementById('app-terminal-input').focus();
+        }
 
         function triggerShutdown(action) {
             document.getElementById('start-menu').classList.remove('active');
