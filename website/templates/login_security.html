@@ -150,6 +150,7 @@
         .app-terminal-output { flex: 1; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
         .app-terminal-output::-webkit-scrollbar { display: none; }
         .app-terminal-output { scrollbar-width: none; -ms-overflow-style: none; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
         .app-terminal-output .cmd-line { color: #00ff00; }
         .app-terminal-output .cmd-response { color: #cccccc; margin-bottom: 8px; }
         .app-terminal-input-line { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
@@ -207,14 +208,15 @@
         .shutdown-text { color: #fff; font-size: 14px; }
 
         /* JK Surprise - Intro Style */
-        #jk-surprise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 3001; display: none; }
+        #jk-surprise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 3001; display: none; pointer-events: auto; }
         #jk-surprise-overlay.active { display: block; animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popupFromLeft { 0% { transform: translateX(-100px) scale(0.5); opacity: 0; } 60% { transform: translateX(10px) scale(1.05); } 100% { transform: translateX(0) scale(1); opacity: 1; } }
         @keyframes slideFromImage { from { transform: translate(-100px, 50px) scale(0.3); opacity: 0; } to { transform: translate(0, 0) scale(1); opacity: 1; } }
-        .jk-surprise-container { position: fixed; bottom: 30px; left: 30px; display: flex; align-items: flex-end; gap: 20px; z-index: 3002; }
-        .jk-surprise-image { width: 150px; height: 150px; background: url('/static/img/jk.png') no-repeat center; background-size: contain; animation: popupFromLeft 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); flex-shrink: 0; border-radius: 12px; }
-        .jk-surprise-bubble { background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%); border-radius: 18px; padding: 20px 24px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.4); border: 2px solid #d0e6ff; min-height: 100px; max-width: 500px; animation: slideFromImage 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .jk-surprise-container { position: fixed; bottom: 40px; left: 40px; display: flex; align-items: flex-end; gap: 28px; z-index: 3002; }
+        .jk-surprise-image { width: 220px; height: 220px; background: url('/static/img/jk.png') no-repeat center; background-size: contain; animation: popupFromLeft 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); flex-shrink: 0; border-radius: 16px; }
+        .jk-surprise-bubble { background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%); border-radius: 16px; padding: 18px 22px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.4); border: 2px solid #d0e6ff; min-height: 100px; max-width: 450px; }
+        .jk-surprise-bubble.slide-in { animation: slideFromImage 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .jk-surprise-bubble::before { content: ''; position: absolute; left: -12px; top: 50%; width: 24px; height: 24px; background: #e6f2ff; border-radius: 50%; border-left: 2px solid #d0e6ff; border-top: 2px solid #d0e6ff; transform: translateY(-50%); }
         .jk-surprise-header { padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); margin-bottom: 10px; }
         .jk-surprise-header h2 { margin: 0; color: #ff4444; font-size: 16px; font-weight: 600; font-family: 'Inter', sans-serif; }
@@ -900,50 +902,91 @@
             // Close WiFi window first
             closeWindow('wifi-window');
 
-            // Create terminal window (Windows CMD style)
+            // Terminal state variables
+            let terminalCurrentDir = 'Z:\\SecureFiles';
+            let terminalCommandHistory = [];
+            let terminalHistoryIndex = -1;
+
+            // Terminal file system for navigation
+            const terminalFS = {
+                'C:': { type: 'dir', children: ['Windows', 'Users', 'Program Files'] },
+                'C:\\Windows': { type: 'dir', children: ['System32'] },
+                'C:\\Windows\\System32': { type: 'dir', children: ['cmd.exe', 'notepad.exe'] },
+                'C:\\Users': { type: 'dir', children: ['Agent'] },
+                'C:\\Users\\Agent': { type: 'dir', children: ['Desktop', 'Documents'] },
+                'Z:': { type: 'dir', children: ['SecureFiles'] },
+                'Z:\\SecureFiles': { type: 'dir', children: ['download', 'Download', 'Downloads', 'DOWNLOAD', 'files', 'Files', 'Filename', 'logs', 'temp', 'backup', 'old_data', 'config.ini', 'readme.txt'] },
+                'Z:\\SecureFiles\\download': { type: 'dir', children: ['filesname', 'temp'] },
+                'Z:\\SecureFiles\\download\\filesname': { type: 'dir', children: ['revil', 'backup'] },
+                'Z:\\SecureFiles\\download\\filesname\\revil': { type: 'dir', children: ['encodetext.b64'] },
+                'Z:\\SecureFiles\\Download': { type: 'dir', children: ['revil', 'archive'] },
+                'Z:\\SecureFiles\\Download\\revil': { type: 'dir', children: ['payload.dat', 'config.json'] },
+                'Z:\\SecureFiles\\Downloads': { type: 'dir', children: ['revil', 'documents'] },
+                'Z:\\SecureFiles\\Downloads\\revil': { type: 'dir', children: ['encrypted.aes', 'keys.pem'] },
+                'Z:\\SecureFiles\\DOWNLOAD': { type: 'dir', children: ['filesname', 'cache'] },
+                'Z:\\SecureFiles\\DOWNLOAD\\filesname': { type: 'dir', children: ['revil', 'data'] },
+                'Z:\\SecureFiles\\DOWNLOAD\\filesname\\revil': { type: 'dir', children: ['encoded.b64', 'readme.md'] },
+                'Z:\\SecureFiles\\files': { type: 'dir', children: ['revil', 'system'] },
+                'Z:\\SecureFiles\\files\\revil': { type: 'dir', children: ['encode.b64', 'hash.md5'] },
+                'Z:\\SecureFiles\\Files': { type: 'dir', children: ['name', 'archive'] },
+                'Z:\\SecureFiles\\Files\\name': { type: 'dir', children: ['revil'] },
+                'Z:\\SecureFiles\\Files\\name\\revil': { type: 'dir', children: ['text_encoded.b64'] },
+                'Z:\\SecureFiles\\Filename': { type: 'dir', children: ['revil', 'data'] },
+                'Z:\\SecureFiles\\Filename\\revil': { type: 'dir', children: ['encodedtext.b64', 'info.txt'] },
+                'Z:\\SecureFiles\\old_data': { type: 'dir', children: ['filesname'] },
+                'Z:\\SecureFiles\\old_data\\filesname': { type: 'dir', children: ['revil'] },
+                'Z:\\SecureFiles\\old_data\\filesname\\revil': { type: 'dir', children: ['encode_text.b64'] },
+                'Z:\\SecureFiles\\backup': { type: 'dir', children: ['filesname'] },
+                'Z:\\SecureFiles\\backup\\filesname': { type: 'dir', children: ['revil'] },
+                'Z:\\SecureFiles\\backup\\filesname\\revil': { type: 'dir', children: ['textencoded.b64'] },
+                'Z:\\SecureFiles\\logs': { type: 'dir', children: ['access.log', 'error.log'] },
+                'Z:\\SecureFiles\\temp': { type: 'dir', children: [] }
+            };
+
+            // Create terminal window
             const terminal = document.createElement('div');
             terminal.id = 'terminal-window';
             terminal.className = 'window';
             terminal.style.cssText = `
                 position: fixed;
                 top: 50%;
-                left: 50%;
+                left: 55%;
                 transform: translate(-50%, -50%);
                 width: 850px;
                 height: 550px;
                 background: #0c0c0c;
-                border: none;
+                border: 1px solid #333;
                 box-shadow: 0 10px 50px rgba(0,0,0,0.8);
                 z-index: 100;
                 display: flex;
                 flex-direction: column;
-                font-family: 'Consolas', 'Lucida Console', monospace;
+                font-family: 'Consolas', 'Courier New', monospace;
                 border-radius: 8px;
                 overflow: hidden;
             `;
 
-            // Windows-style title bar
+            // Terminal title bar
             const titleBar = document.createElement('div');
             titleBar.className = 'title-bar';
             titleBar.onmousedown = (e) => startDrag(e, 'terminal-window');
             titleBar.style.cssText = `
                 background: #000;
-                padding: 8px 12px;
+                padding: 0;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 cursor: move;
-                border-bottom: 1px solid #333;
+                height: 32px;
             `;
             titleBar.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; padding-left: 12px;">
                     <span style="font-size: 14px;">⬛</span>
                     <span style="color: #ccc; font-size: 12px; font-family: 'Segoe UI', sans-serif;">Command Prompt - Agent@INVESTIGATION</span>
                 </div>
-                <div style="display: flex; gap: 5px;">
-                    <div style="width: 45px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-family: 'Segoe UI', sans-serif;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='transparent'">─</div>
-                    <div style="width: 45px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-family: 'Segoe UI', sans-serif;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='transparent'">☐</div>
-                    <div style="width: 45px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-family: 'Segoe UI', sans-serif;" onmouseover="this.style.background='#e81123'" onmouseout="this.style.background='transparent'" onclick="closeWindow('terminal-window')">✕</div>
+                <div style="display: flex; height: 100%;">
+                    <div style="width: 46px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-size: 10px; font-family: 'Segoe UI', sans-serif;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='transparent'">─</div>
+                    <div style="width: 46px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-size: 10px; font-family: 'Segoe UI', sans-serif;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='transparent'">☐</div>
+                    <div style="width: 46px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-size: 10px; font-family: 'Segoe UI', sans-serif;" onmouseover="this.style.background='#e81123'" onmouseout="this.style.background='transparent'" onclick="closeWindow('terminal-window')">✕</div>
                 </div>
             `;
             terminal.appendChild(titleBar);
@@ -958,11 +1001,13 @@
                 color: #cccccc;
                 font-size: 14px;
                 line-height: 1.4;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
             `;
             content.id = 'terminal-content';
             terminal.appendChild(content);
 
-            // Input line container
+            // Input container (hidden initially)
             const inputContainer = document.createElement('div');
             inputContainer.id = 'terminal-input-container';
             inputContainer.style.cssText = `
@@ -989,27 +1034,7 @@
 
             document.getElementById('desktop-screen').appendChild(terminal);
 
-            // Terminal state
-            let currentDir = 'Z:\\\\SecureFiles';
-            let commandHistory = [];
-            let historyIndex = -1;
-
-            // File system for terminal
-            const terminalFS = {
-                'C:': { type: 'dir', children: ['Windows', 'Users', 'Program Files'] },
-                'C:\\\\Windows': { type: 'dir', children: ['System32'] },
-                'C:\\\\Windows\\\\System32': { type: 'dir', children: ['cmd.exe', 'notepad.exe'] },
-                'C:\\\\Users': { type: 'dir', children: ['Agent'] },
-                'C:\\\\Users\\\\Agent': { type: 'dir', children: ['Desktop', 'Documents'] },
-                'Z:': { type: 'dir', children: ['SecureFiles'] },
-                'Z:\\\\SecureFiles': { type: 'dir', children: ['download', 'logs', 'config.ini'] },
-                'Z:\\\\SecureFiles\\\\download': { type: 'dir', children: ['filesname', 'temp'] },
-                'Z:\\\\SecureFiles\\\\download\\\\filesname': { type: 'dir', children: ['revil', 'backup'] },
-                'Z:\\\\SecureFiles\\\\download\\\\filesname\\\\revil': { type: 'dir', children: ['encodetext.b64'] },
-                'Z:\\\\SecureFiles\\\\logs': { type: 'dir', children: ['access.log', 'error.log'] }
-            };
-
-            // Print to terminal
+            // Print line to terminal
             function printLine(text, color = '#cccccc', isHtml = false) {
                 const line = document.createElement('div');
                 line.style.cssText = `color: ${color}; white-space: pre-wrap; word-wrap: break-word;`;
@@ -1022,19 +1047,19 @@
                 content.scrollTop = content.scrollHeight;
             }
 
-            // Process command
+            // Process terminal command
             function processCommand(cmd) {
                 const trimmedCmd = cmd.trim();
                 if (!trimmedCmd) return;
                 
-                commandHistory.push(trimmedCmd);
-                historyIndex = commandHistory.length;
+                terminalCommandHistory.push(trimmedCmd);
+                terminalHistoryIndex = terminalCommandHistory.length;
                 
                 const parts = trimmedCmd.split(' ');
                 const command = parts[0].toLowerCase();
                 const args = parts.slice(1).join(' ');
 
-                printLine(currentDir.replace(/\\\\\\\\/g, '\\\\') + '>' + trimmedCmd, '#cccccc');
+                printLine(terminalCurrentDir + '>' + trimmedCmd, '#cccccc');
 
                 switch(command) {
                     case 'help':
@@ -1055,28 +1080,30 @@
                         printLine('  NETSTAT      - Display network statistics');
                         printLine('  PING         - Test network connection');
                         printLine('  EXIT         - Close terminal');
-                        printLine('  PROCEED      - Continue to next stage');
+                        printLine('  PROCEED      - Continue to next stage', '#00ff00');
                         printLine('');
                         break;
 
                     case 'cls':
+                    case 'clear':
                         content.innerHTML = '';
                         break;
 
                     case 'dir':
-                        const dirPath = currentDir;
+                    case 'ls':
+                        const dirPath = terminalCurrentDir;
                         const dirInfo = terminalFS[dirPath];
                         printLine('');
                         printLine(' Volume in drive ' + dirPath.charAt(0) + ' is SECURE_DRIVE');
                         printLine(' Volume Serial Number is 1337-DEAD');
                         printLine('');
-                        printLine(' Directory of ' + dirPath.replace(/\\\\\\\\/g, '\\\\'));
+                        printLine(' Directory of ' + dirPath);
                         printLine('');
                         if (dirInfo && dirInfo.children) {
                             printLine('<DIR>          .', '#00ffff');
                             printLine('<DIR>          ..', '#00ffff');
                             dirInfo.children.forEach(child => {
-                                const childPath = dirPath + '\\\\\\\\' + child;
+                                const childPath = dirPath + '\\' + child;
                                 if (terminalFS[childPath]) {
                                     printLine('<DIR>          ' + child, '#00ffff');
                                 } else {
@@ -1092,28 +1119,28 @@
 
                     case 'cd':
                         if (!args || args === '.') {
-                            printLine(currentDir.replace(/\\\\\\\\/g, '\\\\'));
+                            printLine(terminalCurrentDir);
                         } else if (args === '..') {
-                            const parts = currentDir.split('\\\\\\\\');
-                            if (parts.length > 1) {
-                                parts.pop();
-                                currentDir = parts.join('\\\\\\\\');
-                                document.getElementById('terminal-prompt').textContent = currentDir.replace(/\\\\\\\\/g, '\\\\') + '>';
+                            const pathParts = terminalCurrentDir.split('\\');
+                            if (pathParts.length > 1) {
+                                pathParts.pop();
+                                terminalCurrentDir = pathParts.join('\\');
+                                if (!terminalCurrentDir.includes('\\')) terminalCurrentDir += '';
+                                document.getElementById('terminal-prompt').textContent = terminalCurrentDir + '>';
                             }
-                        } else if (args.toLowerCase() === '/d' && parts[2]) {
-                            const newPath = parts.slice(2).join(' ');
-                            const normalizedPath = newPath.replace(/\\\\/g, '\\\\\\\\');
-                            if (terminalFS[normalizedPath]) {
-                                currentDir = normalizedPath;
-                                document.getElementById('terminal-prompt').textContent = currentDir.replace(/\\\\\\\\/g, '\\\\') + '>';
+                        } else if (args.toLowerCase().startsWith('/d ')) {
+                            const newPath = args.substring(3);
+                            if (terminalFS[newPath]) {
+                                terminalCurrentDir = newPath;
+                                document.getElementById('terminal-prompt').textContent = terminalCurrentDir + '>';
                             } else {
                                 printLine('The system cannot find the path specified.', '#ff6666');
                             }
                         } else {
-                            const newPath = currentDir + '\\\\\\\\' + args;
+                            const newPath = terminalCurrentDir + '\\' + args;
                             if (terminalFS[newPath]) {
-                                currentDir = newPath;
-                                document.getElementById('terminal-prompt').textContent = currentDir.replace(/\\\\\\\\/g, '\\\\') + '>';
+                                terminalCurrentDir = newPath;
+                                document.getElementById('terminal-prompt').textContent = terminalCurrentDir + '>';
                             } else {
                                 printLine('The system cannot find the path specified.', '#ff6666');
                             }
@@ -1121,12 +1148,27 @@
                         break;
 
                     case 'type':
+                    case 'cat':
                         if (args.toLowerCase().includes('encodetext.b64')) {
                             printLine('');
                             printLine('[ENCRYPTED FILE CONTENTS]', '#ffff00');
                             printLine('VGhlIGRhdGUgaXMgMDMvMDIvMjAyNg==', '#00ff00');
                             printLine('');
                             printLine('Hint: This appears to be Base64 encoded...', '#888888');
+                            printLine('');
+                        } else if (args.toLowerCase().includes('encoded.b64') || args.toLowerCase().includes('encode.b64')) {
+                            printLine('');
+                            printLine('[ENCRYPTED FILE CONTENTS]', '#ffff00');
+                            printLine('RkFLRSBEQVRBIC0gV1JPTkcgRklMRQ==', '#ff6666');
+                            printLine('');
+                            printLine('Error: Corrupted or incorrect file', '#ff6666');
+                            printLine('');
+                        } else if (args.toLowerCase().includes('encodedtext.b64') || args.toLowerCase().includes('text_encoded.b64') || args.toLowerCase().includes('encode_text.b64') || args.toLowerCase().includes('textencoded.b64')) {
+                            printLine('');
+                            printLine('[ENCRYPTED FILE CONTENTS]', '#ffff00');
+                            printLine('Tm90IHRoZSByaWdodCBmaWxl', '#ff6666');
+                            printLine('');
+                            printLine('Error: This is not the correct file', '#ff6666');
                             printLine('');
                         } else if (args.toLowerCase().includes('config.ini')) {
                             printLine('');
@@ -1177,7 +1219,7 @@
                         break;
 
                     case 'whoami':
-                        printLine('investigation-pc\\\\agent');
+                        printLine('investigation-pc\\agent');
                         break;
 
                     case 'date':
@@ -1190,13 +1232,19 @@
 
                     case 'tree':
                         printLine('');
-                        printLine('Z:\\\\SecureFiles');
+                        printLine('Z:\\SecureFiles');
                         printLine('├── download');
                         printLine('│   ├── filesname');
                         printLine('│   │   ├── revil');
                         printLine('│   │   │   └── encodetext.b64  <-- TARGET FILE', '#00ff00');
                         printLine('│   │   └── backup');
                         printLine('│   └── temp');
+                        printLine('├── Download (similar folder - be careful!)');
+                        printLine('├── Downloads (similar folder - be careful!)');
+                        printLine('├── DOWNLOAD (similar folder - be careful!)');
+                        printLine('├── files');
+                        printLine('├── Files');
+                        printLine('├── Filename');
                         printLine('├── logs');
                         printLine('│   ├── access.log');
                         printLine('│   └── error.log');
@@ -1254,9 +1302,42 @@
                     case 'next':
                         printLine('');
                         printLine('Initiating secure transfer to verification module...', '#00ff00');
+                        printLine('Redirecting to Next Level', '#00ff00');
                         setTimeout(() => {
                             window.location.href = '/twofactor';
-                        }, 1000);
+                        }, 1500);
+                        break;
+
+                    case 'base64':
+                        if (args.startsWith('-d ') || args.startsWith('--decode ')) {
+                            const data = args.replace(/^(-d|--decode)\s+/, '');
+                            try {
+                                printLine('Decoded: ' + atob(data), '#00ff00');
+                            } catch (e) {
+                                printLine('base64: invalid input', '#ff6666');
+                            }
+                        } else {
+                            printLine('Usage: base64 -d <encoded_string>');
+                        }
+                        break;
+
+                    case 'find':
+                        if (args.toLowerCase().includes('b64') || args.toLowerCase().includes('encod')) {
+                            printLine('');
+                            printLine('Searching for files...', '#ffff00');
+                            printLine('');
+                            printLine('Z:\\SecureFiles\\download\\filesname\\revil\\encodetext.b64', '#00ff00');
+                            printLine('Z:\\SecureFiles\\Download\\revil\\payload.dat');
+                            printLine('Z:\\SecureFiles\\DOWNLOAD\\filesname\\revil\\encoded.b64');
+                            printLine('Z:\\SecureFiles\\files\\revil\\encode.b64');
+                            printLine('Z:\\SecureFiles\\Files\\name\\revil\\text_encoded.b64');
+                            printLine('Z:\\SecureFiles\\Filename\\revil\\encodedtext.b64');
+                            printLine('');
+                            printLine('Multiple similar files found. Only ONE is correct!', '#ffff00');
+                            printLine('');
+                        } else {
+                            printLine('Usage: find <pattern>');
+                        }
                         break;
 
                     default:
@@ -1267,11 +1348,11 @@
                 printLine('');
             }
 
-            // Initial boot sequence
+            // Initial boot sequence - original content
             printLine('Microsoft Windows [Version 10.0.19044.1234]');
             printLine('(c) Microsoft Corporation. All rights reserved.');
             printLine('');
-            printLine('C:\\\\Users\\\\Agent>netsh wlan show interfaces', '#cccccc');
+            printLine('C:\\Users\\Agent>netsh wlan show interfaces', '#cccccc');
             
             setTimeout(() => {
                 printLine('');
@@ -1284,29 +1365,57 @@
             }, 800);
 
             setTimeout(() => {
-                printLine('C:\\\\Users\\\\Agent>cd /d Z:\\\\SecureFiles', '#cccccc');
-                printLine('');
+                printLine('C:\\Users\\Agent>ipconfig /all', '#cccccc');
             }, 2000);
 
             setTimeout(() => {
-                printLine('Z:\\\\SecureFiles>dir /s /b *.b64', '#cccccc');
                 printLine('');
-                printLine('Searching for encrypted files...', '#ffff00');
-            }, 3000);
+                printLine('Connection-specific DNS Suffix  : meta_data.local');
+                printLine('IPv4 Address                     : 192.168.1.157');
+                printLine('Subnet Mask                      : 255.255.255.0');
+                printLine('Default Gateway                  : 192.168.1.1');
+                printLine('');
+            }, 2800);
 
             setTimeout(() => {
-                printLine('[██████████████████████████] 100%', '#00ff00');
+                printLine('C:\\Users\\Agent>cd /d Z:\\SecureFiles', '#cccccc');
+                printLine('');
+            }, 4000);
+
+            setTimeout(() => {
+                printLine('Z:\\SecureFiles>dir /s /b *.b64', '#cccccc');
+                printLine('');
+                printLine('Searching for encrypted files...', '#ffff00');
+            }, 5000);
+
+            setTimeout(() => {
+                printLine('[████████████████████████] 100% Complete', '#00ff00');
                 printLine('');
                 printLine('Found: 1 file(s)');
                 printLine('');
-                printLine('Z:\\\\SecureFiles\\\\download\\\\filesname\\\\revil\\\\encodetext.b64', '#00ffff');
+            }, 6500);
+
+            setTimeout(() => {
+                const highlightLine = document.createElement('div');
+                highlightLine.style.cssText = 'color: #00ffff; font-size: 15px; font-weight: bold; text-shadow: 0 0 15px #0ff; letter-spacing: 0.5px;';
+                highlightLine.textContent = 'Z:\\SecureFiles\\download\\filesname\\revil\\encodetext.b64';
+                content.appendChild(highlightLine);
                 printLine('');
-            }, 4500);
+                content.scrollTop = content.scrollHeight;
+            }, 7500);
+
+            setTimeout(() => {
+                printLine('Z:\\SecureFiles>echo File location saved successfully', '#cccccc');
+            }, 9000);
+
+            setTimeout(() => {
+                printLine('File location saved successfully', '#00ff00');
+                printLine('');
+            }, 9800);
 
             setTimeout(() => {
                 printLine('═══════════════════════════════════════════════════════════════', '#444444');
-                printLine('  FILE LOCATED! Use "type encodetext.b64" to view contents', '#00ff00');
-                printLine('  Type "help" for available commands or "proceed" to continue', '#ffff00');
+                printLine('  FILE LOCATED! Type "help" for commands or "proceed" to continue', '#00ff00');
                 printLine('═══════════════════════════════════════════════════════════════', '#444444');
                 printLine('');
                 
@@ -1321,17 +1430,17 @@
                         this.value = '';
                     } else if (e.key === 'ArrowUp') {
                         e.preventDefault();
-                        if (historyIndex > 0) {
-                            historyIndex--;
-                            this.value = commandHistory[historyIndex];
+                        if (terminalHistoryIndex > 0) {
+                            terminalHistoryIndex--;
+                            this.value = terminalCommandHistory[terminalHistoryIndex];
                         }
                     } else if (e.key === 'ArrowDown') {
                         e.preventDefault();
-                        if (historyIndex < commandHistory.length - 1) {
-                            historyIndex++;
-                            this.value = commandHistory[historyIndex];
+                        if (terminalHistoryIndex < terminalCommandHistory.length - 1) {
+                            terminalHistoryIndex++;
+                            this.value = terminalCommandHistory[terminalHistoryIndex];
                         } else {
-                            historyIndex = commandHistory.length;
+                            terminalHistoryIndex = terminalCommandHistory.length;
                             this.value = '';
                         }
                     }
@@ -1339,7 +1448,7 @@
 
                 // Click anywhere in content to focus input
                 content.addEventListener('click', () => terminalInput.focus());
-            }, 6000);
+            }, 11000);
 
             // Add blink animation for cursor
             const blinkStyle = document.createElement('style');
@@ -1349,6 +1458,7 @@
                     51%, 100% { opacity: 0; }
                 }
                 #terminal-input:focus { caret-color: #cccccc; }
+                #terminal-content::-webkit-scrollbar { display: none; }
             `;
             document.head.appendChild(blinkStyle);
         }
@@ -1375,9 +1485,114 @@
                 { name: 'readme.txt', type: 'file', icon: '📄' }
             ],
             'Z:/SecureFiles': [
+                { name: 'Download', type: 'folder', icon: '📁' },
                 { name: 'download', type: 'folder', icon: '📁' },
+                { name: 'Downloads', type: 'folder', icon: '📁' },
+                { name: 'DOWNLOAD', type: 'folder', icon: '📁' },
+                { name: 'files', type: 'folder', icon: '📁' },
+                { name: 'Files', type: 'folder', icon: '📁' },
+                { name: 'Filename', type: 'folder', icon: '📁' },
+                { name: 'old_data', type: 'folder', icon: '📁' },
+                { name: 'temp', type: 'folder', icon: '📁' },
+                { name: 'backup', type: 'folder', icon: '📁' },
                 { name: 'logs', type: 'folder', icon: '📁' },
-                { name: 'config.ini', type: 'file', icon: '⚙️' }
+                { name: 'config.ini', type: 'file', icon: '⚙️' },
+                { name: 'readme.txt', type: 'file', icon: '📄' },
+                { name: 'data.bak', type: 'file', icon: '📄' },
+                { name: 'secret.enc', type: 'file', icon: '🔒' }
+            ],
+            'Z:/SecureFiles/Download': [
+                { name: 'revil', type: 'folder', icon: '📁' },
+                { name: 'archive', type: 'folder', icon: '📁' },
+                { name: 'setup.exe', type: 'file', icon: '⚙️' },
+                { name: 'installer.msi', type: 'file', icon: '📦' }
+            ],
+            'Z:/SecureFiles/Download/revil': [
+                { name: 'payload.dat', type: 'file', icon: '📄' },
+                { name: 'config.json', type: 'file', icon: '📄' }
+            ],
+            'Z:/SecureFiles/Download/archive': [
+                { name: 'old_backup.zip', type: 'file', icon: '📦' }
+            ],
+            'Z:/SecureFiles/Downloads': [
+                { name: 'revil', type: 'folder', icon: '📁' },
+                { name: 'documents', type: 'folder', icon: '📁' },
+                { name: 'report_2025.pdf', type: 'file', icon: '📄' }
+            ],
+            'Z:/SecureFiles/Downloads/revil': [
+                { name: 'encrypted.aes', type: 'file', icon: '🔒' },
+                { name: 'keys.pem', type: 'file', icon: '🔑' }
+            ],
+            'Z:/SecureFiles/Downloads/documents': [
+                { name: 'invoice.pdf', type: 'file', icon: '📄' }
+            ],
+            'Z:/SecureFiles/DOWNLOAD': [
+                { name: 'filesname', type: 'folder', icon: '📁' },
+                { name: 'cache', type: 'folder', icon: '📁' }
+            ],
+            'Z:/SecureFiles/DOWNLOAD/filesname': [
+                { name: 'revil', type: 'folder', icon: '📁' },
+                { name: 'data', type: 'folder', icon: '📁' }
+            ],
+            'Z:/SecureFiles/DOWNLOAD/filesname/revil': [
+                { name: 'encoded.b64', type: 'file', icon: '🔐' },
+                { name: 'readme.md', type: 'file', icon: '📄' }
+            ],
+            'Z:/SecureFiles/DOWNLOAD/filesname/data': [],
+            'Z:/SecureFiles/DOWNLOAD/cache': [],
+            'Z:/SecureFiles/files': [
+                { name: 'revil', type: 'folder', icon: '📁' },
+                { name: 'system', type: 'folder', icon: '📁' }
+            ],
+            'Z:/SecureFiles/files/revil': [
+                { name: 'encode.b64', type: 'file', icon: '🔐' },
+                { name: 'hash.md5', type: 'file', icon: '📄' }
+            ],
+            'Z:/SecureFiles/files/system': [],
+            'Z:/SecureFiles/Files': [
+                { name: 'name', type: 'folder', icon: '📁' },
+                { name: 'exports', type: 'folder', icon: '📁' }
+            ],
+            'Z:/SecureFiles/Files/name': [
+                { name: 'revil', type: 'folder', icon: '📁' }
+            ],
+            'Z:/SecureFiles/Files/name/revil': [
+                { name: 'text_encoded.b64', type: 'file', icon: '🔐' }
+            ],
+            'Z:/SecureFiles/Files/exports': [],
+            'Z:/SecureFiles/Filename': [
+                { name: 'revil', type: 'folder', icon: '📁' },
+                { name: 'imports', type: 'folder', icon: '📁' }
+            ],
+            'Z:/SecureFiles/Filename/revil': [
+                { name: 'encodedtext.b64', type: 'file', icon: '🔐' },
+                { name: 'signature.sig', type: 'file', icon: '📄' }
+            ],
+            'Z:/SecureFiles/Filename/imports': [],
+            'Z:/SecureFiles/old_data': [
+                { name: 'filesname', type: 'folder', icon: '📁' },
+                { name: 'archive_2024.tar', type: 'file', icon: '📦' }
+            ],
+            'Z:/SecureFiles/old_data/filesname': [
+                { name: 'revil', type: 'folder', icon: '📁' }
+            ],
+            'Z:/SecureFiles/old_data/filesname/revil': [
+                { name: 'encode_text.b64', type: 'file', icon: '🔐' }
+            ],
+            'Z:/SecureFiles/temp': [
+                { name: 'cache', type: 'folder', icon: '📁' },
+                { name: 'tmp_1283.dat', type: 'file', icon: '📄' }
+            ],
+            'Z:/SecureFiles/temp/cache': [],
+            'Z:/SecureFiles/backup': [
+                { name: 'filesname', type: 'folder', icon: '📁' },
+                { name: 'snapshot.img', type: 'file', icon: '💾' }
+            ],
+            'Z:/SecureFiles/backup/filesname': [
+                { name: 'revil', type: 'folder', icon: '📁' }
+            ],
+            'Z:/SecureFiles/backup/filesname/revil': [
+                { name: 'textencoded.b64', type: 'file', icon: '🔐' }
             ],
             'Z:/SecureFiles/download': [
                 { name: 'filesname', type: 'folder', icon: '📁' },

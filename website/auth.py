@@ -1,12 +1,17 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, logout_user, current_user
 from . import db
-import pyotp
-from stopwatch import *
+from datetime import datetime
 
 auth = Blueprint("auth", __name__)
 
-stopwatch = Stopwatch(2)
+
+def get_elapsed_time():
+    """Calculate elapsed time since user started (in seconds)"""
+    if current_user.start_time:
+        elapsed = datetime.utcnow() - current_user.start_time
+        return round(elapsed.total_seconds(), 2)
+    return 0
 
 
 @auth.route("/login/", methods=["POST", "GET"])
@@ -22,7 +27,7 @@ def login_page():
                 "doubt",
             )
             current_user.ispassword = True
-            current_user.passwordtime = f"{str(stopwatch)}"
+            current_user.passwordtime = f"{get_elapsed_time()}s"
             db.session.commit()
             return redirect(url_for("auth.security"))
         else:
@@ -46,7 +51,7 @@ def security():
             and Food.upper() == creds["Food"]
         ):
             current_user.issecurityquestion = True
-            current_user.securitytime = f"{str(stopwatch)}"
+            current_user.securitytime = f"{get_elapsed_time()}s"
             db.session.commit()
             # Show terminal animation before redirecting
             return render_template("login_security.html", show_terminal=True)
@@ -91,13 +96,23 @@ def twofactor():
         correct_answer = "03/02/2026"
         if otp.strip() == correct_answer:
             current_user.isofa = True
+            current_user.ofatime = f"{get_elapsed_time()}s"
             db.session.commit()
-            # Redirect to the final riddle page instead of last_page
-            return redirect(url_for("auth.final_riddle"))
+            # Redirect to loading screen before final riddle
+            return redirect(url_for("auth.loading_screen"))
         else:
             flash("Wrong answer! Try again.", "error")
             return redirect(url_for("auth.twofactor"))
     return render_template("login_2fa.html")
+
+
+@auth.route("/loading")
+@login_required
+def loading_screen():
+    if current_user.isofa == 0:
+        flash("Not authorized", "danger")
+        return redirect(url_for("auth.twofactor"))
+    return render_template("loading_screen.html")
 
 
 @auth.route("/final-riddle", methods=["POST", "GET"])
@@ -112,9 +127,9 @@ def final_riddle():
         # Answer: "Volodymyr Zelenskyy"
         correct_answer = "volodymyr zelenskyy"
         if answer.strip().lower() == correct_answer:
-            current_user.completed = f"{str(stopwatch)}"
+            current_user.completed = f"{get_elapsed_time()}s"
             db.session.commit()
-            return redirect(url_for("auth.mission_complete"))
+            return redirect(url_for("auth.last_page"))
         else:
             flash("Wrong answer! Think harder...", "error")
             return redirect(url_for("auth.final_riddle"))

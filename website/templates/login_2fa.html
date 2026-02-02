@@ -152,14 +152,14 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .shutdown-text { color: #fff; font-size: 14px; }
         /* JK Surprise - Intro Style */
-        #jk-surprise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 3001; display: none; }
+        #jk-surprise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 3001; display: none; pointer-events: auto; }
         #jk-surprise-overlay.active { display: block; animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popupFromLeft { 0% { transform: translateX(-100px) scale(0.5); opacity: 0; } 60% { transform: translateX(10px) scale(1.05); } 100% { transform: translateX(0) scale(1); opacity: 1; } }
         @keyframes slideFromImage { from { transform: translate(-100px, 50px) scale(0.3); opacity: 0; } to { transform: translate(0, 0) scale(1); opacity: 1; } }
-        .jk-surprise-container { position: fixed; bottom: 30px; left: 30px; display: flex; align-items: flex-end; gap: 20px; z-index: 3002; }
-        .jk-surprise-image { width: 150px; height: 150px; background: url('/static/img/jk.png') no-repeat center; background-size: contain; animation: popupFromLeft 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); flex-shrink: 0; border-radius: 12px; }
-        .jk-surprise-bubble { background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%); border-radius: 18px; padding: 20px 24px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.4); border: 2px solid #d0e6ff; min-height: 100px; max-width: 500px; }
+        .jk-surprise-container { position: fixed; bottom: 40px; left: 40px; display: flex; align-items: flex-end; gap: 28px; z-index: 3002; }
+        .jk-surprise-image { width: 220px; height: 220px; background: url('/static/img/jk.png') no-repeat center; background-size: contain; animation: popupFromLeft 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); flex-shrink: 0; border-radius: 16px; }
+        .jk-surprise-bubble { background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%); border-radius: 16px; padding: 18px 22px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.4); border: 2px solid #d0e6ff; min-height: 100px; max-width: 450px; }
         .jk-surprise-bubble.slide-in { animation: slideFromImage 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .jk-surprise-bubble::before { content: ''; position: absolute; left: -12px; top: 50%; width: 24px; height: 24px; background: #e6f2ff; border-radius: 50%; border-left: 2px solid #d0e6ff; border-top: 2px solid #d0e6ff; transform: translateY(-50%); }
         .jk-surprise-header { padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); margin-bottom: 10px; }

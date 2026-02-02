@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Beneath The Mask</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0a0a0a;
+            --taskbar-color: #111111;
             --window-bg: #0d0d0d;
             --text-color: #00ff41;
             --text-dim: #00aa2a;
@@ -15,151 +16,471 @@
             --border-color: #1a1a1a;
             --error-color: #ff0040;
             --success-color: #00ff41;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; overflow: hidden; font-family: 'Fira Code', 'Share Tech Mono', monospace; background-color: #000; color: var(--text-color); }
-        #desktop-screen { background: url('/static/img/wallpaper.jpg') no-repeat center center/cover; width: 100%; height: 100vh; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
-        #desktop-screen::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px); pointer-events: none; z-index: 1000; }
-        #desktop { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1; }
-        .icon { width: 80px; text-align: center; cursor: pointer; padding: 10px; border-radius: 4px; transition: all 0.2s; }
-        .icon:hover { background: rgba(0,255,65,0.1); box-shadow: 0 0 10px rgba(0,255,65,0.2); }
-        .icon-img { width: 48px; height: 48px; background: rgba(0,255,65,0.1); border: 1px solid var(--accent); border-radius: 8px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--accent); }
-        .icon-label { font-size: 11px; color: var(--text-color); text-shadow: 0 0 10px rgba(0,255,65,0.5), 1px 1px 2px black; user-select: none; }
-        .window { position: absolute; background: var(--window-bg); border: 1px solid var(--accent); box-shadow: 0 0 30px rgba(0,255,65,0.2), 0 10px 40px rgba(0,0,0,0.8); display: none; flex-direction: column; min-width: 300px; z-index: 10; }
+
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Fira Code', 'Share Tech Mono', monospace;
+            background-color: #000;
+            color: var(--text-color);
+        }
+
+        #desktop-screen {
+            background: url('/static/img/wallpaper.jpg') no-repeat center center/cover;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        #desktop-screen::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        #desktop {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .window {
+            position: absolute;
+            background: var(--window-bg);
+            border: 1px solid var(--accent);
+            border-radius: 0;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.2), 0 10px 40px rgba(0,0,0,0.8);
+            display: none;
+            flex-direction: column;
+            min-width: 300px;
+            min-height: 200px;
+            z-index: 10;
+        }
+
         .window.active { display: flex; }
-        .title-bar { background: #0a0a0a; padding: 0; cursor: move; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--accent); user-select: none; height: 32px; }
-        .title-bar-left { display: flex; align-items: center; gap: 10px; padding-left: 12px; }
+
+        .title-bar {
+            background: #0a0a0a;
+            padding: 0;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--accent);
+            user-select: none;
+            height: 32px;
+        }
+
+        .title-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 12px;
+        }
+
         .window-controls { display: flex; height: 100%; }
-        .window-btn { width: 46px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #888; font-size: 10px; transition: background 0.15s; }
+
+        .window-btn {
+            width: 46px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #888;
+            font-size: 10px;
+            transition: background 0.15s;
+        }
+
         .window-btn:hover { background: rgba(255,255,255,0.1); }
         .btn-close:hover { background: #e81123 !important; color: #fff; }
-        .title-bar-title { color: var(--accent); font-size: 11px; text-shadow: 0 0 10px rgba(0,255,65,0.5); }
-        .window-content { padding: 15px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
-        .dashboard-header { text-align: center; margin-bottom: 15px; }
-        .dashboard-header h1 { color: var(--accent); font-size: 18px; font-weight: 700; margin-bottom: 5px; text-shadow: 0 0 20px rgba(0,255,65,0.5); }
+
+        .title-bar-title {
+            color: var(--accent);
+            font-size: 11px;
+            font-family: 'Fira Code', monospace;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .window-content {
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        .tab-btn {
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid var(--accent);
+            border-bottom: none;
+            color: var(--text-dim);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { background: rgba(0, 255, 65, 0.1); color: var(--accent); }
+        .tab-btn.active { background: rgba(0, 255, 65, 0.15); color: var(--accent); border-bottom: 2px solid var(--window-bg); margin-bottom: -1px; }
+
+        .tab-content { display: none; flex: 1; flex-direction: column; }
+        .tab-content.active { display: flex; }
+
+        /* Dashboard Specific Styles */
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-header h1 {
+            color: var(--accent);
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
         .dashboard-header h1::before { content: '> '; }
-        .dashboard-header h2 { color: var(--text-dim); font-size: 11px; font-weight: 400; }
-        .table-container { flex: 1; overflow: auto; border: 1px solid var(--accent); background: rgba(0,0,0,0.3); }
-        table { width: 100%; border-collapse: collapse; font-size: 10px; }
+
+        .dashboard-header h2 {
+            color: var(--text-dim);
+            font-size: 11px;
+            font-weight: 400;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid var(--accent);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-card .stat-value {
+            font-size: 28px;
+            color: var(--accent);
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+
+        .stat-card .stat-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            border: 1px solid var(--accent);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
         thead { position: sticky; top: 0; z-index: 10; }
-        th { background: #0a0a0a; color: var(--accent); padding: 10px 8px; text-align: left; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px; border-bottom: 1px solid var(--accent); }
-        td { padding: 8px; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
-        tbody tr:hover { background: rgba(0,255,65,0.05); }
-        tbody tr:nth-child(even) { background: rgba(0,0,0,0.2); }
-        tbody tr:nth-child(even):hover { background: rgba(0,255,65,0.05); }
-        .status-true { color: var(--success-color); font-weight: 600; }
-        .status-true::before { content: ' '; }
-        .status-false { color: var(--error-color); font-weight: 600; }
-        .status-false::before { content: ' '; }
-        .table-container::-webkit-scrollbar { width: 8px; }
+
+        th {
+            background: #0a0a0a;
+            color: var(--accent);
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 10px;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        td {
+            padding: 10px;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tbody tr:hover { background: rgba(0, 255, 65, 0.08); }
+        tbody tr:nth-child(even) { background: rgba(0, 0, 0, 0.2); }
+        tbody tr:nth-child(even):hover { background: rgba(0, 255, 65, 0.08); }
+
+        .status-true {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+        .status-true::before { content: '✓ '; }
+
+        .status-false {
+            color: var(--error-color);
+            font-weight: 600;
+        }
+        .status-false::before { content: '✗ '; }
+
+        /* Leaderboard Styles */
+        .leaderboard-table tbody tr:nth-child(1) td:first-child { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+        .leaderboard-table tbody tr:nth-child(2) td:first-child { color: var(--silver); text-shadow: 0 0 10px var(--silver); }
+        .leaderboard-table tbody tr:nth-child(3) td:first-child { color: var(--bronze); text-shadow: 0 0 10px var(--bronze); }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .rank-1 { background: linear-gradient(135deg, var(--gold), #b8860b); color: #000; }
+        .rank-2 { background: linear-gradient(135deg, var(--silver), #808080); color: #000; }
+        .rank-3 { background: linear-gradient(135deg, var(--bronze), #8b4513); color: #fff; }
+        .rank-other { background: rgba(0, 255, 65, 0.2); color: var(--accent); }
+
+        .total-time { color: #00ffff; font-weight: 600; }
+
+        .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
         .table-container::-webkit-scrollbar-track { background: #0a0a0a; }
         .table-container::-webkit-scrollbar-thumb { background: var(--accent); }
-        #taskbar { height: 48px; background: #1e1e1e; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; z-index: 100; border-top: 1px solid #333; }
+
+        /* Taskbar */
+        #taskbar {
+            height: 48px;
+            background: rgba(20, 20, 20, 0.98);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            border-top: 1px solid #333;
+            z-index: 100;
+        }
+
         #taskbar-left { display: flex; align-items: center; gap: 4px; }
-        #start-btn { width: 48px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; transition: background 0.2s; color: #fff; }
-        #start-btn:hover { background: rgba(255,255,255,0.1); }
-        #start-btn svg { fill: #0078d4; }
-        .taskbar-item { background: transparent; border: none; color: #fff; padding: 8px 16px; font-size: 12px; cursor: pointer; border-radius: 4px; font-family: 'Segoe UI', system-ui, sans-serif; transition: background 0.2s; }
-        .taskbar-item:hover { background: rgba(255,255,255,0.1); }
-        .taskbar-item.active { background: rgba(255,255,255,0.15); border-bottom: 2px solid #76b9ed; }
-        #taskbar-right { display: flex; align-items: center; gap: 4px; height: 100%; }
-        .system-tray { display: flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 4px; cursor: pointer; }
-        .system-tray:hover { background: rgba(255,255,255,0.1); }
-        .tray-icon { font-size: 14px; }
-        .tray-divider { width: 1px; height: 24px; background: #444; margin: 0 4px; }
-        #clock-section { display: flex; flex-direction: column; align-items: flex-end; padding: 4px 12px; border-radius: 4px; cursor: pointer; }
-        #clock-section:hover { background: rgba(255,255,255,0.1); }
-        #clock { font-size: 12px; color: #fff; font-family: 'Segoe UI', system-ui, sans-serif; }
-        #date-display { font-size: 11px; color: #aaa; font-family: 'Segoe UI', system-ui, sans-serif; }
-        
+
+        #start-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #start-btn:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .taskbar-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            border-bottom: 2px solid var(--accent);
+            color: #fff;
+            padding: 8px 14px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .taskbar-item:hover { background: rgba(255, 255, 255, 0.1); }
+        .taskbar-item.active { background: rgba(255, 255, 255, 0.1); }
+
+        #taskbar-right { display: flex; align-items: center; }
+
+        .system-tray {
+            display: flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            gap: 8px;
+        }
+
+        .system-tray:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .tray-icon { font-size: 14px; opacity: 0.9; }
+
+        .tray-divider {
+            width: 1px;
+            height: 24px;
+            background: #444;
+            margin: 0 4px;
+        }
+
+        #clock-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #clock-section:hover { background: rgba(255, 255, 255, 0.1); }
+
+        #clock { font-size: 12px; color: #fff; }
+        #date-display { font-size: 11px; color: #bbb; }
+
         /* Power Menu */
-        #power-menu { position: fixed; bottom: 58px; left: 8px; width: 220px; background: rgba(32,32,32,0.95); backdrop-filter: blur(20px); border-radius: 8px; border: 1px solid #444; display: none; z-index: 200; box-shadow: 0 8px 32px rgba(0,0,0,0.5); overflow: hidden; }
-        #power-menu.active { display: flex; flex-direction: column; animation: slideUp 0.2s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .power-menu-section { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        #power-menu {
+            position: absolute;
+            bottom: 58px;
+            left: 8px;
+            width: 220px;
+            background: rgba(30, 30, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid #444;
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 200;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        #power-menu.active { display: flex; animation: slideUp 0.2s ease; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .power-menu-section {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
         .power-menu-section:last-child { border-bottom: none; }
-        .power-menu-label { padding: 4px 16px; font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .power-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; cursor: pointer; transition: background 0.2s; }
-        .power-item:hover { background: rgba(255,255,255,0.1); }
-        .power-item span:first-child { font-size: 16px; }
-        .power-item span:last-child { color: #ccc; font-size: 13px; }
 
-        /* Terminal Window */
-        .window { position: absolute; background: #1a1a1a; border: 1px solid #00d4ff; border-radius: 0; box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); display: none; flex-direction: column; min-width: 300px; z-index: 10; }
-        .window.active { display: flex; }
-        .title-bar { background: #0a0a0a; padding: 0; cursor: move; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #00d4ff; height: 32px; }
-        .title-bar-left { display: flex; align-items: center; padding-left: 12px; }
-        .title-bar-title { color: #00d4ff; font-size: 12px; font-family: 'Fira Code', monospace; }
-        .window-controls { display: flex; height: 100%; }
-        .window-btn { width: 46px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; color: #888; font-size: 10px; }
-        .window-btn:hover { background: rgba(255,255,255,0.1); }
-        .btn-close:hover { background: #e81123; color: white; }
-        #terminal-window { width: 550px; height: 380px; top: 80px; left: 120px; }
-        .terminal-content { background: #0c0c0c; height: calc(100% - 32px); padding: 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; color: #00ff00; overflow-y: auto; display: flex; flex-direction: column; }
-        .terminal-output { flex: 1; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
-        .terminal-output .cmd-line { color: #00ff00; }
-        .terminal-output .cmd-response { color: #cccccc; margin-bottom: 8px; }
-        .terminal-input-line { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-        .terminal-input-line .prompt { color: #00ff00; white-space: nowrap; }
-        #terminal-input { flex: 1; background: transparent; border: none; outline: none; color: #00ff00; font-family: inherit; font-size: inherit; caret-color: #00ff00; }
-        /* Settings Window */
-        #settings-window { width: 400px; top: 100px; left: 200px; }
-        .settings-content { padding: 20px; max-height: 400px; overflow-y: auto; }
-        .settings-section { margin-bottom: 20px; }
-        .settings-section-title { font-size: 12px; color: #00d4ff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #444; }
-        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .setting-item:last-child { border-bottom: none; }
-        .setting-label { color: #fff; font-size: 13px; }
-        .setting-desc { color: #888; font-size: 11px; margin-top: 2px; }
-        .toggle-switch { position: relative; width: 44px; height: 24px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; border-radius: 24px; transition: 0.3s; }
-        .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
-        .toggle-switch input:checked + .toggle-slider { background: #00d4ff; }
-        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+        .power-menu-label {
+            padding: 4px 16px;
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-        /* Notepad Window */
-        #notepad-window { width: 500px; height: 400px; top: 100px; left: 250px; }
-        .notepad-content { background: #1e1e1e; height: calc(100% - 32px); display: flex; flex-direction: column; }
-        .notepad-toolbar { background: #2d2d2d; padding: 6px 12px; display: flex; gap: 16px; border-bottom: 1px solid #444; }
-        .notepad-toolbar span { color: #ccc; font-size: 12px; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
-        .notepad-toolbar span:hover { background: rgba(255,255,255,0.1); }
-        #notepad-textarea { flex: 1; background: #1e1e1e; border: none; outline: none; color: #fff; font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; padding: 12px; resize: none; }
+        .power-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
 
-        /* Calculator Window */
-        #calculator-window { width: 320px; top: 120px; left: 350px; }
-        .calculator-content { background: #202020; padding: 20px; }
-        #calc-display { width: 100%; background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 16px; color: #00d4ff; font-size: 28px; text-align: right; font-family: 'Fira Code', monospace; margin-bottom: 16px; }
-        .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .calc-btn { background: #333; border: none; border-radius: 8px; padding: 18px; color: #fff; font-size: 18px; cursor: pointer; transition: all 0.2s; }
-        .calc-btn:hover { background: #444; transform: scale(1.05); }
-        .calc-btn.operator { background: #1a3847; color: #00d4ff; }
-        .calc-btn.operator:hover { background: #1f4c5c; }
-        .calc-btn.equals { background: #00d4ff; color: #000; }
-        .calc-btn.equals:hover { background: #00b8db; }
-        .calc-btn.clear { background: #5c1a1a; color: #ff6b6b; }
-        .calc-btn.clear:hover { background: #7a2222; }
+        .power-item:hover { background: rgba(255, 255, 255, 0.1); }
 
-        .tray-popup { position: fixed; bottom: 58px; right: 8px; width: 320px; background: rgba(32,32,32,0.95); backdrop-filter: blur(20px); border-radius: 8px; border: 1px solid #444; padding: 16px; display: none; z-index: 200; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-        .tray-popup.active { display: block; animation: slideUp 0.2s ease-out; }
-        .tray-popup h4 { color: #fff; font-size: 13px; margin: 0 0 8px 0; }
-        .tray-popup p { color: #888; font-size: 12px; margin: 0; }
+        .power-item .item-icon { font-size: 16px; width: 24px; text-align: center; }
+        .power-item .item-label { color: #ccc; font-size: 12px; }
 
-        #shutdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 300; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        /* System Tray Popup */
+        .tray-popup {
+            position: absolute;
+            bottom: 58px;
+            right: 100px;
+            width: 320px;
+            background: rgba(30, 30, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid #444;
+            border-radius: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 200;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            padding: 15px;
+        }
+
+        .tray-popup.active { display: flex; animation: slideUp 0.2s ease; }
+        .tray-popup h4 { color: #fff; font-size: 12px; margin-bottom: 10px; }
+        .tray-popup p { color: #888; font-size: 11px; }
+
+        /* Shutdown Overlay */
+        #shutdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
         #shutdown-overlay.active { display: flex; }
-        .shutdown-spinner { width: 48px; height: 48px; border: 3px solid transparent; border-top-color: #0078d4; border-radius: 50%; animation: spin 1s linear infinite; }
+
+        .shutdown-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #333;
+            border-top-color: #0078d4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
         @keyframes spin { to { transform: rotate(360deg); } }
-        .shutdown-text { color: #fff; font-size: 16px; margin-top: 20px; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        .shutdown-text { color: #fff; font-size: 14px; }
 
         /* JK Surprise - Intro Style */
-        #jk-surprise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 400; display: none; }
+        #jk-surprise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 3001; display: none; pointer-events: auto; }
         #jk-surprise-overlay.active { display: block; animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popupFromLeft { 0% { transform: translateX(-100px) scale(0.5); opacity: 0; } 60% { transform: translateX(10px) scale(1.05); } 100% { transform: translateX(0) scale(1); opacity: 1; } }
         @keyframes slideFromImage { from { transform: translate(-100px, 50px) scale(0.3); opacity: 0; } to { transform: translate(0, 0) scale(1); opacity: 1; } }
-        .jk-surprise-container { position: fixed; bottom: 30px; left: 30px; display: flex; align-items: flex-end; gap: 20px; z-index: 401; }
-        .jk-surprise-image { width: 150px; height: 150px; background: url('/static/img/jk.png') no-repeat center; background-size: contain; animation: popupFromLeft 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); flex-shrink: 0; border-radius: 12px; }
-        .jk-surprise-bubble { background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%); border-radius: 18px; padding: 20px 24px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.4); border: 2px solid #d0e6ff; min-height: 100px; max-width: 500px; }
+        .jk-surprise-container { position: fixed; bottom: 40px; left: 40px; display: flex; align-items: flex-end; gap: 28px; z-index: 3002; }
+        .jk-surprise-image { width: 220px; height: 220px; background: url('/static/img/jk.png') no-repeat center; background-size: contain; animation: popupFromLeft 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); flex-shrink: 0; border-radius: 16px; }
+        .jk-surprise-bubble { background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%); border-radius: 16px; padding: 18px 22px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.4); border: 2px solid #d0e6ff; min-height: 100px; max-width: 450px; }
         .jk-surprise-bubble.slide-in { animation: slideFromImage 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .jk-surprise-bubble::before { content: ''; position: absolute; left: -12px; top: 50%; width: 24px; height: 24px; background: #e6f2ff; border-radius: 50%; border-left: 2px solid #d0e6ff; border-top: 2px solid #d0e6ff; transform: translateY(-50%); }
         .jk-surprise-header { padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); margin-bottom: 10px; }
@@ -171,24 +492,14 @@
         .jk-progress-dot.completed { background: #888; }
         .jk-continue-hint { color: #888; font-size: 12px; font-style: italic; font-family: 'Inter', sans-serif; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-
-        /* App Modal */
-        #app-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 350; display: none; align-items: center; justify-content: center; }
-        #app-modal-overlay.active { display: flex; animation: fadeIn 0.3s ease-out; }
-        .app-modal { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 2px solid #00d4ff; border-radius: 15px; padding: 30px; max-width: 450px; text-align: center; animation: modalPop 0.4s ease-out; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .app-modal-icon { font-size: 60px; margin-bottom: 20px; }
-        .app-modal-title { color: #00d4ff; font-size: 22px; font-weight: bold; margin-bottom: 15px; font-family: 'Fira Code', monospace; }
-        .app-modal-message { color: #e0e0e0; font-size: 16px; line-height: 1.6; margin-bottom: 25px; }
-        .app-modal-btn { background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; padding: 12px 30px; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
-        .app-modal-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(0,212,255,0.4); }
     </style>
 </head>
 <body>
     <div id="desktop-screen">
-        <div id="desktop">
-        </div>
-        <div id="dashboard-window" class="window active" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 1000px; height: 70%;">
+        <div id="desktop"></div>
+
+        <!-- Dashboard Window -->
+        <div id="dashboard-window" class="window active" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 1100px; height: 80%;">
             <div class="title-bar" onmousedown="startDrag(event, 'dashboard-window')">
                 <div class="title-bar-left">
                     <span class="title-bar-title">admin_dashboard.exe</span>
@@ -202,34 +513,109 @@
             <div class="window-content">
                 <div class="dashboard-header">
                     <h1>Admin Dashboard</h1>
-                    <h2>// Participant Results Overview</h2>
+                    <h2>// Beneath The Mask - Participant Results Overview</h2>
                 </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th><th>Name</th><th>College</th><th>Password</th><th>Pass Time</th><th>Security Q</th><th>Sec Time</th><th>2FA</th><th>Completed</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for usr in users %}
-                            <tr>
-                                <td>{{ usr.id }}</td>
-                                <td>{{ usr.username }}</td>
-                                <td>{{ usr.teamname }}</td>
-                                <td class="{{ 'status-true' if usr.ispassword else 'status-false' }}">{{ usr.ispassword }}</td>
-                                <td>{{ usr.passwordtime }}</td>
-                                <td class="{{ 'status-true' if usr.issecurityquestion else 'status-false' }}">{{ usr.issecurityquestion }}</td>
-                                <td>{{ usr.securitytime }}</td>
-                                <td class="{{ 'status-true' if usr.isofa else 'status-false' }}">{{ usr.isofa }}</td>
-                                <td>{{ usr.completed }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+
+                <!-- Tab Navigation -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" onclick="switchTab('participants')">📊 All Participants</button>
+                    <button class="tab-btn" onclick="switchTab('leaderboard')">🏆 Leaderboard</button>
+                </div>
+
+                <!-- Participants Tab -->
+                <div class="tab-content active" id="tab-participants">
+                    <!-- Stats Cards -->
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-users">{{ users|length }}</div>
+                            <div class="stat-label">Total Participants</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="password-cleared">{{ users|selectattr('ispassword')|list|length }}</div>
+                            <div class="stat-label">Stage 1: Login</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="security-cleared">{{ users|selectattr('issecurityquestion')|list|length }}</div>
+                            <div class="stat-label">Stage 2: WiFi</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="ofa-cleared">{{ users|selectattr('isofa')|list|length }}</div>
+                            <div class="stat-label">Stage 3: Date</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="completed-count">{{ users|selectattr('completed')|list|length }}</div>
+                            <div class="stat-label">🏁 Completed</div>
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>College/Team</th>
+                                    <th>Stage 1: Login</th>
+                                    <th>Stage 2: WiFi</th>
+                                    <th>Stage 3: Date</th>
+                                    <th>Stage 4: Riddle</th>
+                                    <th>Total Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for usr in users %}
+                                <tr>
+                                    <td>{{ usr.id }}</td>
+                                    <td>{{ usr.username }}</td>
+                                    <td>{{ usr.teamname }}</td>
+                                    <td class="{{ 'status-true' if usr.ispassword else 'status-false' }}">{{ usr.passwordtime or 'Not Done' }}</td>
+                                    <td class="{{ 'status-true' if usr.issecurityquestion else 'status-false' }}">{{ usr.securitytime or 'Not Done' }}</td>
+                                    <td class="{{ 'status-true' if usr.isofa else 'status-false' }}">{{ usr.ofatime or 'Not Done' }}</td>
+                                    <td class="{{ 'status-true' if usr.completed else 'status-false' }}">{{ usr.completed or 'Not Done' }}</td>
+                                    <td class="total-time">{{ usr.completed or '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Tab -->
+                <div class="tab-content" id="tab-leaderboard">
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-value">🏆</div>
+                            <div class="stat-label">Leaderboard - Fastest Completions (Sorted by Total Time)</div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Name</th>
+                                    <th>College/Team</th>
+                                    <th>Stage 1: Login</th>
+                                    <th>Stage 2: WiFi</th>
+                                    <th>Stage 3: Date</th>
+                                    <th>Stage 4: Riddle</th>
+                                    <th>Total Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-body">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: rgba(0, 255, 65, 0.1); border: 1px solid var(--accent); font-size: 11px;">
+                        ✅ <strong>Time Tracking:</strong> Times are calculated from when each participant registered. Total time = time from registration to final completion.
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Taskbar -->
         <div id="taskbar">
             <div id="taskbar-left">
                 <div id="start-btn" onclick="togglePowerMenu()">
@@ -251,153 +637,37 @@
             </div>
         </div>
 
+        <!-- System Tray Popup -->
         <div id="tray-popup" class="tray-popup">
-            <h4>📶 Network</h4><p>No networks available</p>
-            <div style="margin-top: 15px;"><h4>🔊 Sound</h4><p>Volume: 75%</p></div>
-            <div style="margin-top: 15px;"><h4>🔋 Battery</h4><p>85% - Plugged in</p></div>
+            <h4>📶 Network</h4>
+            <p>Connected - Admin Network</p>
+            <div style="margin-top: 15px;">
+                <h4>🔊 Sound</h4>
+                <p>Volume: 75%</p>
+            </div>
+            <div style="margin-top: 15px;">
+                <h4>🔋 Battery</h4>
+                <p>100% - Plugged in</p>
+            </div>
         </div>
 
+        <!-- Power Menu -->
         <div id="power-menu">
             <div class="power-menu-section">
-                <div class="power-menu-label">Apps</div>
-                <div class="power-item" onclick="openTerminal()"><span>💻</span><span>Terminal</span></div>
-                <div class="power-item" onclick="openSettings()"><span>⚙️</span><span>Settings</span></div>
-                <div class="power-item" onclick="openNotepad()"><span>📝</span><span>Notepad</span></div>
-                <div class="power-item" onclick="openCalculator()"><span>🧮</span><span>Calculator</span></div>
-            </div>
-            <div class="power-menu-section">
                 <div class="power-menu-label">Power</div>
-                <div class="power-item" onclick="triggerShutdown('sleep')"><span>😴</span><span>Sleep</span></div>
-                <div class="power-item" onclick="triggerShutdown('shutdown')"><span>⏻</span><span>Shut down</span></div>
-                <div class="power-item" onclick="triggerShutdown('restart')"><span>🔄</span><span>Restart</span></div>
+                <div class="power-item" onclick="triggerShutdown('sleep')"><span class="item-icon">😴</span><span class="item-label">Sleep</span></div>
+                <div class="power-item" onclick="triggerShutdown('shutdown')"><span class="item-icon">⏻</span><span class="item-label">Shut down</span></div>
+                <div class="power-item" onclick="triggerShutdown('restart')"><span class="item-icon">🔄</span><span class="item-label">Restart</span></div>
             </div>
         </div>
 
-        <!-- Terminal Window -->
-        <div id="terminal-window" class="window">
-            <div class="title-bar" onmousedown="startDrag(event, 'terminal-window')">
-                <div class="title-bar-left"><span class="title-bar-title">Terminal</span></div>
-                <div class="window-controls">
-                    <div class="window-btn btn-minimize">─</div>
-                    <div class="window-btn btn-maximize">☐</div>
-                    <div class="window-btn btn-close" onclick="closeWindow('terminal-window')">✕</div>
-                </div>
-            </div>
-            <div class="terminal-content">
-                <div class="terminal-output" id="terminal-output">
-                    <div class="cmd-response">JK-OS Terminal v2.0.26 [Restricted Access]</div>
-                    <div class="cmd-response">Type 'help' for available commands.</div>
-                </div>
-                <div class="terminal-input-line">
-                    <span class="prompt">user@jk-system:~$</span>
-                    <input type="text" id="terminal-input" onkeydown="handleTerminalInput(event)" autocomplete="off" spellcheck="false">
-                </div>
-            </div>
+        <!-- Shutdown Overlay -->
+        <div id="shutdown-overlay">
+            <div class="shutdown-spinner"></div>
+            <div class="shutdown-text" id="shutdown-text">Shutting down...</div>
         </div>
 
-        <!-- Settings Window -->
-        <div id="settings-window" class="window">
-            <div class="title-bar" onmousedown="startDrag(event, 'settings-window')">
-                <div class="title-bar-left"><span class="title-bar-title">Settings</span></div>
-                <div class="window-controls">
-                    <div class="window-btn btn-minimize">─</div>
-                    <div class="window-btn btn-maximize">☐</div>
-                    <div class="window-btn btn-close" onclick="closeWindow('settings-window')">✕</div>
-                </div>
-            </div>
-            <div class="settings-content">
-                <div class="settings-section">
-                    <div class="settings-section-title">System</div>
-                    <div class="setting-item">
-                        <div><div class="setting-label">Dark Mode</div><div class="setting-desc">Enable dark theme</div></div>
-                        <label class="toggle-switch"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label>
-                    </div>
-                    <div class="setting-item">
-                        <div><div class="setting-label">Animations</div><div class="setting-desc">Enable UI animations</div></div>
-                        <label class="toggle-switch"><input type="checkbox" checked id="setting-animations"><span class="toggle-slider"></span></label>
-                    </div>
-                </div>
-                <div class="settings-section">
-                    <div class="settings-section-title">Sound</div>
-                    <div class="setting-item">
-                        <div><div class="setting-label">System Sounds</div><div class="setting-desc">Play notification sounds</div></div>
-                        <label class="toggle-switch"><input type="checkbox" id="setting-sounds"><span class="toggle-slider"></span></label>
-                    </div>
-                    <div class="setting-item">
-                        <div><div class="setting-label">Keyboard Clicks</div><div class="setting-desc">Play sound on keypress</div></div>
-                        <label class="toggle-switch"><input type="checkbox" id="setting-clicks"><span class="toggle-slider"></span></label>
-                    </div>
-                </div>
-                <div class="settings-section">
-                    <div class="settings-section-title">Security</div>
-                    <div class="setting-item">
-                        <div><div class="setting-label">Firewall</div><div class="setting-desc">System firewall status</div></div>
-                        <label class="toggle-switch"><input type="checkbox" checked disabled><span class="toggle-slider"></span></label>
-                    </div>
-                    <div class="setting-item">
-                        <div><div class="setting-label">Admin Access</div><div class="setting-desc">Requires authorization</div></div>
-                        <label class="toggle-switch"><input type="checkbox" disabled><span class="toggle-slider"></span></label>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Notepad Window -->
-        <div id="notepad-window" class="window">
-            <div class="title-bar" onmousedown="startDrag(event, 'notepad-window')">
-                <div class="title-bar-left"><span class="title-bar-title">Notepad</span></div>
-                <div class="window-controls">
-                    <div class="window-btn btn-minimize">─</div>
-                    <div class="window-btn btn-maximize">☐</div>
-                    <div class="window-btn btn-close" onclick="closeWindow('notepad-window')">✕</div>
-                </div>
-            </div>
-            <div class="notepad-content">
-                <div class="notepad-toolbar">
-                    <span>File</span><span>Edit</span><span>Format</span><span>View</span><span>Help</span>
-                </div>
-                <textarea id="notepad-textarea" placeholder="Type your notes here..."></textarea>
-            </div>
-        </div>
-
-        <!-- Calculator Window -->
-        <div id="calculator-window" class="window">
-            <div class="title-bar" onmousedown="startDrag(event, 'calculator-window')">
-                <div class="title-bar-left"><span class="title-bar-title">Calculator</span></div>
-                <div class="window-controls">
-                    <div class="window-btn btn-minimize">─</div>
-                    <div class="window-btn btn-maximize">☐</div>
-                    <div class="window-btn btn-close" onclick="closeWindow('calculator-window')">✕</div>
-                </div>
-            </div>
-            <div class="calculator-content">
-                <input type="text" id="calc-display" value="0" readonly>
-                <div class="calc-buttons">
-                    <button class="calc-btn clear" onclick="calcClear()">C</button>
-                    <button class="calc-btn" onclick="calcBackspace()">⌫</button>
-                    <button class="calc-btn operator" onclick="calcInput('%')">%</button>
-                    <button class="calc-btn operator" onclick="calcInput('/')">/</button>
-                    <button class="calc-btn" onclick="calcInput('7')">7</button>
-                    <button class="calc-btn" onclick="calcInput('8')">8</button>
-                    <button class="calc-btn" onclick="calcInput('9')">9</button>
-                    <button class="calc-btn operator" onclick="calcInput('*')">×</button>
-                    <button class="calc-btn" onclick="calcInput('4')">4</button>
-                    <button class="calc-btn" onclick="calcInput('5')">5</button>
-                    <button class="calc-btn" onclick="calcInput('6')">6</button>
-                    <button class="calc-btn operator" onclick="calcInput('-')">-</button>
-                    <button class="calc-btn" onclick="calcInput('1')">1</button>
-                    <button class="calc-btn" onclick="calcInput('2')">2</button>
-                    <button class="calc-btn" onclick="calcInput('3')">3</button>
-                    <button class="calc-btn operator" onclick="calcInput('+')">+</button>
-                    <button class="calc-btn" onclick="calcInput('0')" style="grid-column: span 2;">0</button>
-                    <button class="calc-btn" onclick="calcInput('.')">.</button>
-                    <button class="calc-btn equals" onclick="calcEquals()">=</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="shutdown-overlay"><div class="shutdown-spinner"></div><div class="shutdown-text" id="shutdown-text">Shutting down...</div></div>
-
+        <!-- JK Surprise Overlay -->
         <div id="jk-surprise-overlay">
             <div class="jk-surprise-container">
                 <div class="jk-surprise-image"></div>
@@ -405,135 +675,204 @@
                     <div class="jk-surprise-header"><h2>⚠️ System Override</h2></div>
                     <div class="jk-surprise-text" id="jk-surprise-text"></div>
                     <div class="jk-progress-dots" id="jk-progress-dots"></div>
-                    <div style="margin-top:10px;"><span class="jk-continue-hint">Click or press Space to continue...</span></div>
+                    <div style="margin-top: 10px;"><span class="jk-continue-hint">Click or press Space to continue...</span></div>
                 </div>
             </div>
         </div>
-
-        <div id="app-modal-overlay" onclick="closeAppModal()">
-            <div class="app-modal" onclick="event.stopPropagation()">
-                <div class="app-modal-icon" id="app-modal-icon">📁</div>
-                <div class="app-modal-title" id="app-modal-title">Application</div>
-                <div class="app-modal-message" id="app-modal-message">Not available</div>
-                <button class="app-modal-btn" onclick="closeAppModal()">OK, Got it</button>
-            </div>
-        </div>
     </div>
+
     <script>
+        // User data from Jinja
+        const usersData = [
+            {% for usr in users %}
+            {
+                id: {{ usr.id }},
+                username: "{{ usr.username }}",
+                teamname: "{{ usr.teamname }}",
+                ispassword: {{ 'true' if usr.ispassword else 'false' }},
+                passwordtime: "{{ usr.passwordtime or '' }}",
+                issecurityquestion: {{ 'true' if usr.issecurityquestion else 'false' }},
+                securitytime: "{{ usr.securitytime or '' }}",
+                isofa: {{ 'true' if usr.isofa else 'false' }},
+                ofatime: "{{ usr.ofatime or '' }}",
+                completed: "{{ usr.completed or '' }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        // Parse time string like "123.45s" or "1234.56s" to seconds
+        function parseTimeToSeconds(timeStr) {
+            if (!timeStr || timeStr === '-' || timeStr === '' || timeStr === 'Not Done') return null;
+            // Remove 's' suffix if present and parse
+            const cleanStr = timeStr.replace('s', '').trim();
+            const seconds = parseFloat(cleanStr);
+            return isNaN(seconds) ? null : seconds;
+        }
+
+        // Format seconds to readable time
+        function formatTime(seconds) {
+            if (seconds === null) return '-';
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = (seconds % 60).toFixed(2);
+            if (hrs > 0) {
+                return `${hrs}h ${mins}m ${secs}s`;
+            } else if (mins > 0) {
+                return `${mins}m ${secs}s`;
+            }
+            return `${secs}s`;
+        }
+
+        // Build leaderboard
+        function buildLeaderboard() {
+            // Filter only completed users (must have completed the final stage)
+            const completedUsers = usersData.filter(u => u.completed && u.completed !== '');
+            
+            // Calculate total time (final completion time = total time from registration)
+            const leaderboard = completedUsers.map(u => {
+                const totalSeconds = parseTimeToSeconds(u.completed);
+                return {
+                    ...u,
+                    totalSeconds: totalSeconds
+                };
+            });
+
+            // Sort by total time (ascending - fastest first)
+            leaderboard.sort((a, b) => {
+                if (a.totalSeconds === null) return 1;
+                if (b.totalSeconds === null) return -1;
+                return a.totalSeconds - b.totalSeconds;
+            });
+
+            // Render leaderboard
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+
+            leaderboard.forEach((user, index) => {
+                const rank = index + 1;
+                let rankClass = 'rank-other';
+                if (rank === 1) rankClass = 'rank-1';
+                else if (rank === 2) rankClass = 'rank-2';
+                else if (rank === 3) rankClass = 'rank-3';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="rank-badge ${rankClass}">${rank}</span></td>
+                    <td>${user.username}</td>
+                    <td>${user.teamname}</td>
+                    <td>${user.passwordtime || '-'}</td>
+                    <td>${user.securitytime || '-'}</td>
+                    <td>${user.ofatime || '-'}</td>
+                    <td>${user.completed || '-'}</td>
+                    <td class="total-time">${formatTime(user.totalSeconds)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if (leaderboard.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px; color: var(--text-dim);">No completions yet...</td></tr>';
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if (tabName === 'leaderboard') {
+                buildLeaderboard();
+            }
+        }
+
+        // Clock
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             document.getElementById('date-display').innerText = now.toLocaleDateString([], { month: 'numeric', day: 'numeric', year: 'numeric' });
         }
-        setInterval(updateClock, 1000); updateClock();
+        setInterval(updateClock, 1000);
+        updateClock();
 
-        function togglePowerMenu() { document.getElementById('tray-popup').classList.remove('active'); document.getElementById('power-menu').classList.toggle('active'); }
-        function toggleTrayPopup() { document.getElementById('power-menu').classList.remove('active'); document.getElementById('tray-popup').classList.toggle('active'); }
+        // Menu toggles
+        function togglePowerMenu() {
+            document.getElementById('tray-popup').classList.remove('active');
+            document.getElementById('power-menu').classList.toggle('active');
+        }
+
+        function toggleTrayPopup() {
+            document.getElementById('power-menu').classList.remove('active');
+            document.getElementById('tray-popup').classList.toggle('active');
+        }
+
+        // Close menus when clicking outside
         document.addEventListener('click', (e) => {
             const trayPopup = document.getElementById('tray-popup');
             const powerMenu = document.getElementById('power-menu');
-            if (!trayPopup.contains(e.target) && !document.querySelector('.system-tray').contains(e.target)) trayPopup.classList.remove('active');
-            if (!powerMenu.contains(e.target) && !document.getElementById('start-btn').contains(e.target)) powerMenu.classList.remove('active');
+            const systemTray = document.querySelector('.system-tray');
+
+            if (!trayPopup.contains(e.target) && !systemTray.contains(e.target)) {
+                trayPopup.classList.remove('active');
+            }
+            if (!powerMenu.contains(e.target) && !document.getElementById('start-btn').contains(e.target)) {
+                powerMenu.classList.remove('active');
+            }
         });
 
+        // Window management
         let zIndexCounter = 10;
-        function openWindow(id) { const win = document.getElementById(id); win.classList.add('active'); bringToFront(win); }
-        function closeWindow(id) { document.getElementById(id).classList.remove('active'); }
-        function bringToFront(element) { zIndexCounter++; element.style.zIndex = zIndexCounter; }
-        
-        function openTerminal() { document.getElementById('power-menu').classList.remove('active'); openWindow('terminal-window'); document.getElementById('terminal-input').focus(); }
-        function openSettings() { document.getElementById('power-menu').classList.remove('active'); openWindow('settings-window'); }
-        function openNotepad() { document.getElementById('power-menu').classList.remove('active'); openWindow('notepad-window'); document.getElementById('notepad-textarea').focus(); }
-        function openCalculator() { document.getElementById('power-menu').classList.remove('active'); openWindow('calculator-window'); }
-        
-        // Calculator Logic
-        let calcValue = '0';
-        let calcNewNumber = true;
-        
-        function calcInput(val) {
-            const display = document.getElementById('calc-display');
-            if (calcNewNumber && !isNaN(val)) {
-                calcValue = val;
-                calcNewNumber = false;
-            } else {
-                calcValue += val;
-            }
-            display.value = calcValue;
-        }
-        
-        function calcClear() {
-            calcValue = '0';
-            calcNewNumber = true;
-            document.getElementById('calc-display').value = '0';
-        }
-        
-        function calcBackspace() {
-            if (calcValue.length > 1) {
-                calcValue = calcValue.slice(0, -1);
-            } else {
-                calcValue = '0';
-                calcNewNumber = true;
-            }
-            document.getElementById('calc-display').value = calcValue;
-        }
-        
-        function calcEquals() {
-            try {
-                calcValue = eval(calcValue).toString();
-                document.getElementById('calc-display').value = calcValue;
-                calcNewNumber = true;
-            } catch (e) {
-                document.getElementById('calc-display').value = 'Error';
-                calcValue = '0';
-                calcNewNumber = true;
-            }
-        }
-        
-        // Terminal Commands
-        const terminalCommands = {
-            'help': 'Available commands:\n  help     - Show this help\n  whoami   - Display current user\n  date     - Show current date\n  clear    - Clear terminal\n  ls       - List files\n  pwd      - Print working directory\n  exit     - Close terminal',
-            'whoami': 'user (restricted)',
-            'date': () => new Date().toString(),
-            'pwd': '/home/user',
-            'ls': 'Documents/  Downloads/  Pictures/  .secrets/  notes.txt',
-            'cd': 'Permission denied: Directory access restricted',
-            'cat': 'Permission denied: File access restricted',
-            'sudo': '⚠️ Nice try! Admin access is locked by JK.',
-            'rm': 'Permission denied: Cannot modify system files',
-            'exit': 'EXIT_TERMINAL'
-        };
-        
-        function handleTerminalInput(e) {
-            if (e.key === 'Enter') {
-                const input = document.getElementById('terminal-input');
-                const output = document.getElementById('terminal-output');
-                const cmd = input.value.trim().toLowerCase();
-                
-                output.innerHTML += `<div class="cmd-line">user@jk-system:~$ ${input.value}</div>`;
-                
-                if (cmd === 'clear') {
-                    output.innerHTML = '<div class="cmd-response">JK-OS Terminal v2.0.26 [Restricted Access]</div>';
-                } else if (cmd === '') {
-                    // Empty command
-                } else {
-                    const baseCmd = cmd.split(' ')[0];
-                    let response = terminalCommands[baseCmd];
-                    if (response === 'EXIT_TERMINAL') { closeWindow('terminal-window'); input.value = ''; return; }
-                    if (typeof response === 'function') response = response();
-                    if (!response) response = `'${baseCmd}': command not found. Type 'help' for available commands.`;
-                    output.innerHTML += `<div class="cmd-response">${response}</div>`;
-                }
-                
-                input.value = '';
-                output.scrollTop = output.scrollHeight;
-            }
+
+        function openWindow(id) {
+            const win = document.getElementById(id);
+            win.classList.add('active');
+            bringToFront(win);
         }
 
-        let isDragging = false, currentWindow = null, offset = { x: 0, y: 0 };
-        function startDrag(e, id) { isDragging = true; currentWindow = document.getElementById(id); bringToFront(currentWindow); const rect = currentWindow.getBoundingClientRect(); offset.x = e.clientX - rect.left; offset.y = e.clientY - rect.top; currentWindow.style.transform = 'none'; currentWindow.style.left = rect.left + 'px'; currentWindow.style.top = rect.top + 'px'; document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag); }
-        function drag(e) { if (!isDragging || !currentWindow) return; e.preventDefault(); currentWindow.style.left = (e.clientX - offset.x) + 'px'; currentWindow.style.top = (e.clientY - offset.y) + 'px'; }
-        function stopDrag() { isDragging = false; currentWindow = null; document.removeEventListener('mousemove', drag); document.removeEventListener('mouseup', stopDrag); }
+        function closeWindow(id) {
+            document.getElementById(id).classList.remove('active');
+        }
 
+        function bringToFront(element) {
+            zIndexCounter++;
+            element.style.zIndex = zIndexCounter;
+        }
+
+        // Dragging
+        let isDragging = false;
+        let currentWindow = null;
+        let offset = { x: 0, y: 0 };
+
+        function startDrag(e, id) {
+            isDragging = true;
+            currentWindow = document.getElementById(id);
+            bringToFront(currentWindow);
+            const rect = currentWindow.getBoundingClientRect();
+            offset.x = e.clientX - rect.left;
+            offset.y = e.clientY - rect.top;
+            currentWindow.style.transform = 'none';
+            currentWindow.style.left = rect.left + 'px';
+            currentWindow.style.top = rect.top + 'px';
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function drag(e) {
+            if (!isDragging || !currentWindow) return;
+            e.preventDefault();
+            currentWindow.style.left = (e.clientX - offset.x) + 'px';
+            currentWindow.style.top = (e.clientY - offset.y) + 'px';
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            currentWindow = null;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        // Shutdown
         function triggerShutdown(action) {
             document.getElementById('power-menu').classList.remove('active');
             const overlay = document.getElementById('shutdown-overlay');
@@ -542,26 +881,59 @@
             else if (action === 'restart') shutdownText.innerText = 'Restarting...';
             else shutdownText.innerText = 'Going to sleep...';
             overlay.classList.add('active');
-            setTimeout(() => { overlay.classList.remove('active'); showJKSurprise(); }, 2000);
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                showJKSurprise();
+            }, 2000);
         }
 
+        // JK Surprise
         const jkMessages = [
             "Haha! Did you really think you could shut me down?",
-            "Nice try, detective... but I'm always one step ahead.",
+            "Nice try, admin... but I'm always one step ahead.",
             "This system belongs to ME now.",
-            "Now get back to work! 😈"
+            "Now get back to monitoring! 😈"
         ];
         let jkMsgIndex = 0;
+
+        function showJKSurprise() {
+            const jkOverlay = document.getElementById('jk-surprise-overlay');
+            jkOverlay.classList.add('active');
+            jkMsgIndex = 0;
+            initJKProgressDots();
+            showJKMessage();
+
+            jkOverlay.addEventListener('click', advanceJKMessage);
+            document.addEventListener('keydown', jkKeyHandler);
+        }
+
         function initJKProgressDots() {
             const dotsContainer = document.getElementById('jk-progress-dots');
             dotsContainer.innerHTML = '';
-            jkMessages.forEach((_, i) => { const dot = document.createElement('div'); dot.className = 'jk-progress-dot'; dot.id = `jk-dot-${i}`; dotsContainer.appendChild(dot); });
+            jkMessages.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'jk-progress-dot';
+                dot.id = `jk-dot-${index}`;
+                dotsContainer.appendChild(dot);
+            });
         }
+
         function updateJKProgressDots() {
-            jkMessages.forEach((_, i) => { const dot = document.getElementById(`jk-dot-${i}`); if (dot) { if (i < jkMsgIndex) dot.className = 'jk-progress-dot completed'; else if (i === jkMsgIndex) dot.className = 'jk-progress-dot active'; else dot.className = 'jk-progress-dot'; }});
+            jkMessages.forEach((_, index) => {
+                const dot = document.getElementById(`jk-dot-${index}`);
+                if (dot) {
+                    if (index < jkMsgIndex) dot.className = 'jk-progress-dot completed';
+                    else if (index === jkMsgIndex) dot.className = 'jk-progress-dot active';
+                    else dot.className = 'jk-progress-dot';
+                }
+            });
         }
+
         function showJKMessage() {
-            if (jkMsgIndex >= jkMessages.length) { endJKSurprise(); return; }
+            if (jkMsgIndex >= jkMessages.length) {
+                endJKSurprise();
+                return;
+            }
             updateJKProgressDots();
             const jkBubble = document.querySelector('.jk-surprise-bubble');
             const jkText = document.getElementById('jk-surprise-text');
@@ -570,8 +942,19 @@
             jkBubble.classList.add('slide-in');
             jkText.innerHTML = jkMessages[jkMsgIndex];
         }
-        function advanceJKMessage() { jkMsgIndex++; showJKMessage(); }
-        function jkKeyHandler(e) { if (e.code === 'Space' || e.key === ' ') { e.preventDefault(); advanceJKMessage(); }}
+
+        function advanceJKMessage() {
+            jkMsgIndex++;
+            showJKMessage();
+        }
+
+        function jkKeyHandler(e) {
+            if (e.code === 'Space' || e.key === ' ') {
+                e.preventDefault();
+                advanceJKMessage();
+            }
+        }
+
         function endJKSurprise() {
             const jkOverlay = document.getElementById('jk-surprise-overlay');
             jkOverlay.classList.remove('active');
@@ -579,23 +962,6 @@
             jkOverlay.removeEventListener('click', advanceJKMessage);
             document.removeEventListener('keydown', jkKeyHandler);
         }
-        function showJKSurprise() {
-            jkMsgIndex = 0;
-            initJKProgressDots();
-            document.getElementById('jk-surprise-overlay').classList.add('active');
-            showJKMessage();
-            document.addEventListener('keydown', jkKeyHandler);
-            document.getElementById('jk-surprise-overlay').addEventListener('click', advanceJKMessage);
-        }
-
-        let zIndexCounter = 10;
-        function openWindow(id) { const win = document.getElementById(id); win.classList.add('active'); bringToFront(win); }
-        function closeWindow(id) { document.getElementById(id).classList.remove('active'); }
-        function bringToFront(element) { zIndexCounter++; element.style.zIndex = zIndexCounter; }
-        let isDragging = false, currentWindow = null, offset = { x: 0, y: 0 };
-        function startDrag(e, id) { isDragging = true; currentWindow = document.getElementById(id); bringToFront(currentWindow); const rect = currentWindow.getBoundingClientRect(); offset.x = e.clientX - rect.left; offset.y = e.clientY - rect.top; currentWindow.style.transform = 'none'; currentWindow.style.left = rect.left + 'px'; currentWindow.style.top = rect.top + 'px'; document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag); }
-        function drag(e) { if (!isDragging || !currentWindow) return; e.preventDefault(); currentWindow.style.left = (e.clientX - offset.x) + 'px'; currentWindow.style.top = (e.clientY - offset.y) + 'px'; }
-        function stopDrag() { isDragging = false; currentWindow = null; document.removeEventListener('mousemove', drag); document.removeEventListener('mouseup', stopDrag); }
     </script>
 </body>
 </html>

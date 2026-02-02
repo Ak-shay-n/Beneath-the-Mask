@@ -17,7 +17,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { height: 100%; overflow: hidden; font-family: 'Fira Code', 'Share Tech Mono', monospace; background-color: #000; color: var(--text-color); }
         #desktop-screen { background: url('/static/img/wallpaper.jpg') no-repeat center center/cover; width: 100%; height: 100vh; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
-        #desktop-screen::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px); pointer-events: none; z-index: 1000; }
+        #desktop-screen::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px); pointer-events: none; z-index: 2999; }
         #desktop { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1; }
         .icon { width: 80px; text-align: center; cursor: pointer; padding: 10px; border-radius: 4px; transition: all 0.2s; }
         .icon:hover { background: rgba(0,255,65,0.1); box-shadow: 0 0 10px rgba(0,255,65,0.2); }
@@ -155,21 +155,21 @@
         .tray-popup h4 { color: #fff; font-size: 13px; margin: 0 0 8px 0; }
         .tray-popup p { color: #888; font-size: 12px; margin: 0; }
 
-        #shutdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 300; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        #shutdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         #shutdown-overlay.active { display: flex; }
-        .shutdown-spinner { width: 48px; height: 48px; border: 3px solid transparent; border-top-color: #0078d4; border-radius: 50%; animation: spin 1s linear infinite; }
+        .shutdown-spinner { width: 40px; height: 40px; border: 3px solid #333; border-top-color: #0078d4; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .shutdown-text { color: #fff; font-size: 16px; margin-top: 20px; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .shutdown-text { color: #fff; font-size: 14px; }
 
         /* JK Surprise - Intro Style */
-        #jk-surprise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 400; display: none; }
+        #jk-surprise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 3001; display: none; pointer-events: auto; }
         #jk-surprise-overlay.active { display: block; animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popupFromLeft { 0% { transform: translateX(-100px) scale(0.5); opacity: 0; } 60% { transform: translateX(10px) scale(1.05); } 100% { transform: translateX(0) scale(1); opacity: 1; } }
         @keyframes slideFromImage { from { transform: translate(-100px, 50px) scale(0.3); opacity: 0; } to { transform: translate(0, 0) scale(1); opacity: 1; } }
-        .jk-surprise-container { position: fixed; bottom: 30px; left: 30px; display: flex; align-items: flex-end; gap: 20px; z-index: 401; }
-        .jk-surprise-image { width: 150px; height: 150px; background: url('/static/img/jk.png') no-repeat center; background-size: contain; animation: popupFromLeft 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); flex-shrink: 0; border-radius: 12px; }
-        .jk-surprise-bubble { background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%); border-radius: 18px; padding: 20px 24px; position: relative; box-shadow: 0 15px 35px rgba(0,0,0,0.4); border: 2px solid #d0e6ff; min-height: 100px; max-width: 500px; }
+        .jk-surprise-container { position: fixed; bottom: 40px; left: 40px; display: flex; align-items: flex-end; gap: 28px; z-index: 3002; }
+        .jk-surprise-image { width: 220px; height: 220px; background: url('/static/img/jk.png') no-repeat center; background-size: contain; animation: popupFromLeft 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); flex-shrink: 0; border-radius: 16px; }
+        .jk-surprise-bubble { background: linear-gradient(180deg, #ffffff 0%, #e6f2ff 100%); border-radius: 16px; padding: 18px 22px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.4); border: 2px solid #d0e6ff; min-height: 100px; max-width: 450px; }
         .jk-surprise-bubble.slide-in { animation: slideFromImage 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .jk-surprise-bubble::before { content: ''; position: absolute; left: -12px; top: 50%; width: 24px; height: 24px; background: #e6f2ff; border-radius: 50%; border-left: 2px solid #d0e6ff; border-top: 2px solid #d0e6ff; transform: translateY(-50%); }
         .jk-surprise-header { padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); margin-bottom: 10px; }
@@ -536,9 +536,24 @@
             overlay.classList.add('active');
             setTimeout(() => { overlay.classList.remove('active'); showJKSurprise(); }, 2000);
         }
-        const jkMessages = ["Haha! Did you really think you could shut me down?", "Nice try, detective... but I'm always one step ahead.", "This system belongs to ME now.", "Now get back to work! 😈"];
+        const jkMessages = ["Haha! Did you really think you could shut me down?", "Nice try, detective... but I'm always one step ahead.", "This system belongs to ME now.", "Now get back to work!!"];
+        const jkSeeYouMessages = ["Well, well, well... looks like you've completed the mission.", "Congratulations, detective. You've uncovered the truth.", "But remember... I'm always watching", "See you in 2027, Detective!!"];
         let jkMsgIndex = 0;
+        let currentJKMessages = jkMessages;
+        
         function showJKSurprise() {
+            currentJKMessages = jkMessages;
+            const jkOverlay = document.getElementById('jk-surprise-overlay');
+            jkOverlay.classList.add('active');
+            jkMsgIndex = 0;
+            initJKProgressDots();
+            showJKMessage();
+            jkOverlay.addEventListener('click', advanceJKMessage);
+            document.addEventListener('keydown', jkKeyHandler);
+        }
+        
+        function showSeeYouSurprise() {
+            currentJKMessages = jkSeeYouMessages;
             const jkOverlay = document.getElementById('jk-surprise-overlay');
             jkOverlay.classList.add('active');
             jkMsgIndex = 0;
@@ -550,20 +565,20 @@
         function initJKProgressDots() {
             const dotsContainer = document.getElementById('jk-progress-dots');
             dotsContainer.innerHTML = '';
-            jkMessages.forEach((_, i) => { const dot = document.createElement('div'); dot.className = 'jk-progress-dot'; dot.id = `jk-dot-${i}`; dotsContainer.appendChild(dot); });
+            currentJKMessages.forEach((_, i) => { const dot = document.createElement('div'); dot.className = 'jk-progress-dot'; dot.id = `jk-dot-${i}`; dotsContainer.appendChild(dot); });
         }
         function updateJKProgressDots() {
-            jkMessages.forEach((_, i) => { const dot = document.getElementById(`jk-dot-${i}`); if (dot) { if (i < jkMsgIndex) dot.className = 'jk-progress-dot completed'; else if (i === jkMsgIndex) dot.className = 'jk-progress-dot active'; else dot.className = 'jk-progress-dot'; }});
+            currentJKMessages.forEach((_, i) => { const dot = document.getElementById(`jk-dot-${i}`); if (dot) { if (i < jkMsgIndex) dot.className = 'jk-progress-dot completed'; else if (i === jkMsgIndex) dot.className = 'jk-progress-dot active'; else dot.className = 'jk-progress-dot'; }});
         }
         function showJKMessage() {
-            if (jkMsgIndex >= jkMessages.length) { endJKSurprise(); return; }
+            if (jkMsgIndex >= currentJKMessages.length) { endJKSurprise(); return; }
             updateJKProgressDots();
             const jkBubble = document.querySelector('.jk-surprise-bubble');
             const jkText = document.getElementById('jk-surprise-text');
             jkBubble.classList.remove('slide-in');
             void jkBubble.offsetWidth;
             jkBubble.classList.add('slide-in');
-            jkText.innerHTML = jkMessages[jkMsgIndex];
+            jkText.innerHTML = currentJKMessages[jkMsgIndex];
         }
         function advanceJKMessage() { jkMsgIndex++; showJKMessage(); }
         function jkKeyHandler(e) { if (e.code === 'Space' || e.key === ' ') { e.preventDefault(); advanceJKMessage(); }}
@@ -574,15 +589,9 @@
             jkOverlay.removeEventListener('click', advanceJKMessage);
             document.removeEventListener('keydown', jkKeyHandler);
         }
-
-        let zIndexCounter = 10;
-        function openWindow(id) { const win = document.getElementById(id); win.classList.add('active'); bringToFront(win); }
-        function closeWindow(id) { document.getElementById(id).classList.remove('active'); }
-        function bringToFront(element) { zIndexCounter++; element.style.zIndex = zIndexCounter; }
-        let isDragging = false, currentWindow = null, offset = { x: 0, y: 0 };
-        function startDrag(e, id) { isDragging = true; currentWindow = document.getElementById(id); bringToFront(currentWindow); const rect = currentWindow.getBoundingClientRect(); offset.x = e.clientX - rect.left; offset.y = e.clientY - rect.top; currentWindow.style.transform = 'none'; currentWindow.style.left = rect.left + 'px'; currentWindow.style.top = rect.top + 'px'; document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag); }
-        function drag(e) { if (!isDragging || !currentWindow) return; e.preventDefault(); currentWindow.style.left = (e.clientX - offset.x) + 'px'; currentWindow.style.top = (e.clientY - offset.y) + 'px'; }
-        function stopDrag() { isDragging = false; currentWindow = null; document.removeEventListener('mousemove', drag); document.removeEventListener('mouseup', stopDrag); }
+        
+        // Auto-trigger "See you in 2027" message after 3 seconds
+        setTimeout(showSeeYouSurprise, 3000);
     </script>
 </body>
 </html>

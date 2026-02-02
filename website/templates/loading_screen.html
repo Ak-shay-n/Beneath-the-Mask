@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initializing... - Beneath The Mask</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --text-color: #00ff41;
+            --text-dim: #00aa2a;
+            --accent: #00ff41;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Fira Code', 'Share Tech Mono', monospace;
+            background-color: #000;
+            color: var(--text-color);
+        }
+        
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(ellipse at center, #0a1a0a 0%, #000 70%);
+        }
+
+        /* Scanline effect */
+        .container::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,0,0,0.1) 0px,
+                rgba(0,0,0,0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Matrix rain background */
+        .matrix-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        .matrix-column {
+            position: absolute;
+            top: -100%;
+            font-size: 14px;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+            animation: matrix-fall linear infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes matrix-fall {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(calc(100vh + 100%)); }
+        }
+
+        /* Main content */
+        .loading-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 40px;
+        }
+
+        /* Logo/Icon */
+        .loading-icon {
+            font-size: 60px;
+            margin-bottom: 30px;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { 
+                text-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent);
+                transform: scale(1);
+            }
+            50% { 
+                text-shadow: 0 0 40px var(--accent), 0 0 80px var(--accent), 0 0 120px var(--accent);
+                transform: scale(1.1);
+            }
+        }
+
+        /* Title */
+        .loading-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0,255,65,0.5);
+        }
+
+        .loading-subtitle {
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 3px;
+            margin-bottom: 40px;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 400px;
+            max-width: 90vw;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 4px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--text-dim), var(--accent));
+            box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,65,0.8), transparent);
+            animation: progress-sweep 2s linear infinite;
+        }
+
+        @keyframes progress-sweep {
+            0% { transform: translateX(-50px); }
+            100% { transform: translateX(400px); }
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .progress-percent {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Status messages */
+        .status-container {
+            width: 400px;
+            max-width: 90vw;
+            text-align: left;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #1a1a1a;
+            padding: 15px;
+            font-size: 11px;
+            height: 120px;
+            overflow: hidden;
+        }
+
+        .status-line {
+            color: var(--text-dim);
+            margin-bottom: 4px;
+            opacity: 0;
+            transform: translateX(-10px);
+            animation: status-appear 0.3s ease forwards;
+        }
+
+        .status-line::before {
+            content: '> ';
+            color: var(--accent);
+        }
+
+        .status-line.success {
+            color: var(--accent);
+        }
+
+        .status-line.success::before {
+            content: '✓ ';
+        }
+
+        .status-line.current {
+            color: #fff;
+        }
+
+        .status-line.current::after {
+            content: '_';
+            animation: blink 0.7s infinite;
+        }
+
+        @keyframes status-appear {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Bottom info */
+        .loading-footer {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #333;
+            letter-spacing: 2px;
+        }
+
+        /* Glitch effect for title */
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff0040;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-1 2s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: 2px 0 #0ff;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim-2 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim-1 {
+            0% { clip: rect(20px, 9999px, 40px, 0); }
+            20% { clip: rect(60px, 9999px, 80px, 0); }
+            40% { clip: rect(10px, 9999px, 30px, 0); }
+            60% { clip: rect(70px, 9999px, 90px, 0); }
+            80% { clip: rect(40px, 9999px, 60px, 0); }
+            100% { clip: rect(30px, 9999px, 50px, 0); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(65px, 9999px, 85px, 0); }
+            20% { clip: rect(25px, 9999px, 45px, 0); }
+            40% { clip: rect(75px, 9999px, 95px, 0); }
+            60% { clip: rect(35px, 9999px, 55px, 0); }
+            80% { clip: rect(55px, 9999px, 75px, 0); }
+            100% { clip: rect(15px, 9999px, 35px, 0); }
+        }
+
+        /* Corner decorations */
+        .corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: var(--accent);
+            border-style: solid;
+            opacity: 0.5;
+        }
+        .corner-tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+        .corner-tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+        .corner-bl { bottom: 60px; left: 20px; border-width: 0 0 2px 2px; }
+        .corner-br { bottom: 60px; right: 20px; border-width: 0 2px 2px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Matrix rain background -->
+        <div class="matrix-bg" id="matrix-bg"></div>
+
+        <!-- Corner decorations -->
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <!-- Main content -->
+        <div class="loading-content">
+            <div class="progress-container">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                    <div class="progress-bar-glow"></div>
+                </div>
+                <div class="progress-text">
+                    <span>Loading modules...</span>
+                    <span class="progress-percent" id="progress-percent">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading-footer">
+            BENEATH THE MASK v2.0.26 | SECURE CONNECTION ESTABLISHED
+        </div>
+    </div>
+
+    <script>
+        // Create matrix rain
+        function createMatrixRain() {
+            const matrixBg = document.getElementById('matrix-bg');
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            const columns = Math.floor(window.innerWidth / 20);
+
+            for (let i = 0; i < columns; i++) {
+                const column = document.createElement('div');
+                column.className = 'matrix-column';
+                column.style.left = (i * 20) + 'px';
+                column.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                column.style.animationDelay = (Math.random() * 2) + 's';
+                
+                let text = '';
+                const length = Math.floor(Math.random() * 20) + 10;
+                for (let j = 0; j < length; j++) {
+                    text += chars[Math.floor(Math.random() * chars.length)] + '<br>';
+                }
+                column.innerHTML = text;
+                matrixBg.appendChild(column);
+            }
+        }
+        createMatrixRain();
+
+        // Status messages
+        const statusMessages = [
+            { text: 'Establishing secure connection...', delay: 200 },
+            { text: 'Connection verified', delay: 800, success: true },
+            { text: 'Loading authentication modules...', delay: 1200 },
+            { text: 'Modules loaded successfully', delay: 1800, success: true },
+            { text: 'Decrypting security protocols...', delay: 2200 },
+            { text: 'Protocols decrypted', delay: 2800, success: true },
+            { text: 'Verifying user credentials...', delay: 3200 },
+            { text: 'Credentials verified', delay: 3800, success: true },
+            { text: 'Preparing final gate interface...', delay: 4200 },
+            { text: 'Interface ready', delay: 4800, success: true },
+            { text: 'Redirecting to Final Gate...', delay: 5200, current: true }
+        ];
+
+        const statusContainer = document.getElementById('status-container');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+
+        // Animate progress bar
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 3 + 1;
+            if (progress > 100) progress = 100;
+            progressFill.style.width = progress + '%';
+            progressPercent.textContent = Math.floor(progress) + '%';
+            
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+            }
+        }, 100);
+
+        // Display status messages
+        statusMessages.forEach((msg, index) => {
+            setTimeout(() => {
+                const line = document.createElement('div');
+                line.className = 'status-line';
+                if (msg.success) line.classList.add('success');
+                if (msg.current) line.classList.add('current');
+                line.textContent = msg.text;
+                statusContainer.appendChild(line);
+                
+                // Keep only last 6 messages visible
+                const lines = statusContainer.querySelectorAll('.status-line');
+                if (lines.length > 6) {
+                    lines[0].remove();
+                }
+                
+                // Scroll to bottom
+                statusContainer.scrollTop = statusContainer.scrollHeight;
+            }, msg.delay);
+        });
+
+        // Redirect after loading
+        setTimeout(() => {
+            window.location.href = '/final-riddle';
+        }, 6000);
+    </script>
+</body>
+</html>
